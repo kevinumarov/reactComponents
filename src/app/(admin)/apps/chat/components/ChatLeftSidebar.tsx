@@ -119,7 +119,7 @@ const ChatLeftSidebar = ({ users, onUserSelect, selectedUser }: ChatUsersProps) 
               </div>
               <h5 className="my-0 fs-14">Gaston Lapierre</h5>
               <p className="mt-1 mb-0 text-muted">
-                <span className="w-75">Hey there! I am using Reback Chat.</span>
+                <span className="w-75">Hey there! I am using Kevinative Chat.</span>
               </p>
             </div>
           </div>
@@ -146,7 +146,7 @@ const ChatLeftSidebar = ({ users, onUserSelect, selectedUser }: ChatUsersProps) 
                     </li>
                     <li className="mb-2">
                       <span role="button">
-                        <IconifyIcon icon="bx:check-Reback" className="fs-18 me-2" />
+                        <IconifyIcon icon="bx:check-double" className="fs-18 me-2" />
                         Security
                       </span>
                     </li>

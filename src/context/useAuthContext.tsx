@@ -21,7 +21,7 @@ export function useAuthContext() {
   return context
 }
 
-const authSessionKey = '_REBACK_AUTH_KEY_'
+const authSessionKey = '_KEVINATIVE_AUTH_KEY_'
 
 export function AuthProvider({ children }: ChildrenType) {
   const navigate = useNavigate()

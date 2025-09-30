@@ -14,6 +14,6 @@ export const buyLink = ''
 
 export const basePath = ''
 
-export const DEFAULT_PAGE_TITLE = 'Reback React | Responsive Admin Dashboard Template'
+export const DEFAULT_PAGE_TITLE = 'Kevinative React | Responsive Admin Dashboard Template'
 
 export const colorVariants = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark', 'purple', 'pink', 'orange', 'light', 'link']

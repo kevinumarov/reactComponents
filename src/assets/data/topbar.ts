@@ -19,12 +19,12 @@ export const appsData: AppType[] = [
   {
     image: githubImg,
     name: 'Github',
-    handle: '@reback',
+    handle: '@kevinative',
   },
   {
     image: bitbucketImg,
     name: 'Bitbucket',
-    handle: '@reback',
+    handle: '@kevinative',
   },
   {
     image: dribbleImg,
@@ -39,7 +39,7 @@ export const appsData: AppType[] = [
   {
     image: slackImg,
     name: 'Slack',
-    handle: '@reback',
+    handle: '@kevinative',
   },
 ]
 
@@ -79,7 +79,7 @@ export const activityStreamData: ActivityType[] = [
         name: 'Concept.fig',
       },
       {
-        name: 'reback.docs',
+        name: 'kevinative.docs',
       },
     ],
     time: addOrSubtractDaysFromDate(0),
@@ -97,7 +97,7 @@ export const activityStreamData: ActivityType[] = [
     time: addOrSubtractDaysFromDate(1),
   },
   {
-    title: 'Reback Application UI v2.0.0',
+    title: 'Kevinative Application UI v2.0.0',
     variant: 'primary',
     content: 'Get access to over 20+ pages including a dashboard layout, charts, kanban board, calendar, and pre-order E-commerce & Marketing pages.',
     files: [{ name: 'Backup.zip' }],

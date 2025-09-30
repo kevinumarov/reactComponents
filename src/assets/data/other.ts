@@ -20,7 +20,7 @@ export const timelineData: TimelineType = {
       description: 'Consectetur adipisicing elit. Iusto, optio, dolorumJohn deonprovident.',
     },
     {
-      title: 'We released new version of our theme Reback.',
+      title: 'We released new version of our theme Kevinative.',
       description: '3 new photo Uploaded on facebook fan page',
     },
   ],
@@ -41,7 +41,7 @@ export const timelineData: TimelineType = {
         'Alex Smith is a Senior Software (Full Stack) engineer with a deep passion for building usable, functional & pretty web applications.',
     },
     {
-      title: 'First release of Reback admin dashboard template',
+      title: 'First release of Kevinative admin dashboard template',
       description: 'Outdoor visit at California State Route 85 with John Boltana & Harry Piterson regarding to setup a new show room.',
     },
   ],

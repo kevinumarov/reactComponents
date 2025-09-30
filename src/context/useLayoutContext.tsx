@@ -32,7 +32,7 @@ const LayoutProvider = ({ children }: ChildrenType) => {
     },
   }
 
-  const [settings, setSettings] = useLocalStorage<LayoutState>('__REBACK_NEXT_CONFIG__', INIT_STATE,override)
+  const [settings, setSettings] = useLocalStorage<LayoutState>('__KEVINATIVE_NEXT_CONFIG__', INIT_STATE,override)
   const [offcanvasStates, setOffcanvasStates] = useState<LayoutOffcanvasStatesType>({
     showThemeCustomizer: false,
     showActivityStream: false,

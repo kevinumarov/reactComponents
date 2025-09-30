@@ -7,7 +7,7 @@ const mock = new MockAdapter(axios)
 export const fakeUsers: UserType[] = [
   {
     id: '1',
-    email: 'test@techzaa.com',
+    email: 'test@kevinative.com',
     username: 'demo_user',
     password: 'password',
     firstName: 'Demo',
@@ -18,7 +18,7 @@ export const fakeUsers: UserType[] = [
   },
   {
     id: '2',
-    email: 'test@techzaa.com',
+    email: 'test@kevinative.com',
     username: 'demo_admin',
     password: 'password',
     firstName: 'Admin',

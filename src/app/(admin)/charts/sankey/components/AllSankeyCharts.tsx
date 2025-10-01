@@ -43,10 +43,10 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    // Sankey generator with traditional straight connections
+    // Sankey generator with narrow nodes like screenshot
     const sankeyGenerator = sankey()
-      .nodeWidth(15) // Standard node width
-      .nodePadding(10) // Standard padding
+      .nodeWidth(8) // Narrow node width to match screenshot
+      .nodePadding(15) // Adequate padding for narrow nodes
       .extent([[1, 1], [chartWidth - 1, chartHeight - 6]]) // Standard margins
       .iterations(32) // Standard iterations
 
@@ -106,7 +106,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Main question title
           g.append('text')
-            .attr('x', xPos + 7.5) // Center on node width (15/2)
+            .attr('x', xPos + 4) // Center on narrow node width (8/2)
             .attr('y', -10)
             .attr('text-anchor', 'middle')
             .style('font-size', '12px')
@@ -116,7 +116,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Subtitle
           g.append('text')
-            .attr('x', xPos + 7.5)
+            .attr('x', xPos + 4)
             .attr('y', 5)
             .attr('text-anchor', 'middle')
             .style('font-size', '10px')

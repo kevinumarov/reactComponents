@@ -43,12 +43,12 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    // Sankey generator optimized for snake-like curves
+    // Sankey generator with traditional straight connections
     const sankeyGenerator = sankey()
-      .nodeWidth(30) // Balanced width for good curves
-      .nodePadding(30) // More padding for better curve space
-      .extent([[50, 50], [chartWidth - 50, chartHeight - 50]]) // More margin for curves
-      .iterations(200) // Maximum iterations for optimal curve positioning
+      .nodeWidth(15) // Standard node width
+      .nodePadding(10) // Standard padding
+      .extent([[1, 1], [chartWidth - 1, chartHeight - 6]]) // Standard margins
+      .iterations(32) // Standard iterations
 
     // Map ids
     const nodeMap = new Map()
@@ -106,7 +106,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Main question title
           g.append('text')
-            .attr('x', xPos + 15) // Center on node width (30/2)
+            .attr('x', xPos + 7.5) // Center on node width (15/2)
             .attr('y', -10)
             .attr('text-anchor', 'middle')
             .style('font-size', '12px')
@@ -116,7 +116,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Subtitle
           g.append('text')
-            .attr('x', xPos + 15)
+            .attr('x', xPos + 7.5)
             .attr('y', 5)
             .attr('text-anchor', 'middle')
             .style('font-size', '10px')
@@ -133,7 +133,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       linkOverlapCounts.set(key, (linkOverlapCounts.get(key) || 0) + 1)
     })
 
-    // Use the standard Sankey link generator for proper snake-like curves
+    // Use the standard Sankey link generator for traditional straight connections
     const linkGenerator = sankeyLinkHorizontal()
 
     // First draw background Sankey structure in neutral color
@@ -144,11 +144,9 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       .attr('class', 'background-link')
       .attr('d', linkGenerator)
       .attr('stroke', '#e0e0e0')
-      .attr('stroke-width', (d: any) => Math.max(2, d.width))
-      .attr('stroke-opacity', 0.3)
+      .attr('stroke-width', (d: any) => Math.max(1, d.width))
+      .attr('stroke-opacity', 0.4)
       .attr('fill', 'none')
-      .style('stroke-linecap', 'round')
-      .style('stroke-linejoin', 'round')
       .style('cursor', 'pointer')
       .on('mouseover', function(_event: any, d: any) {
         // Highlight the respondent's complete flow on hover
@@ -180,12 +178,10 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
             .attr('class', `respondent-link respondent-${respondent}`)
             .attr('d', linkGenerator(link))
             .attr('stroke', respondentColor)
-            .attr('stroke-width', Math.max(3, link.width)) // Use the actual link width
+            .attr('stroke-width', Math.max(2, link.width)) // Use the actual link width
             .attr('stroke-opacity', selectedRespondent ? 
-              (selectedRespondent === respondent ? 0.9 : 0.1) : 0.7)
+              (selectedRespondent === respondent ? 0.8 : 0.1) : 0.6)
             .attr('fill', 'none')
-            .style('stroke-linecap', 'round')
-            .style('stroke-linejoin', 'round')
             .style('pointer-events', 'none')
         })
       }
@@ -221,13 +217,11 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
             .attr('class', 'connection-trace')
             .attr('d', linkGenerator)
             .attr('stroke', respondentColor)
-            .attr('stroke-opacity', 0.4) // Slightly higher opacity for better visibility
-            .attr('stroke-width', 4)
+            .attr('stroke-opacity', 0.3) // Tracing line opacity
+            .attr('stroke-width', 3)
             .attr('fill', 'none')
             .style('pointer-events', 'none')
-            .style('stroke-linecap', 'round')
-            .style('stroke-dasharray', '8,4') // Dashed line for distinction
-            .style('mix-blend-mode', 'overlay') // Better blending mode for tracing
+            .style('stroke-dasharray', '5,3') // Dashed line for distinction
         })
       }
     }
@@ -327,7 +321,7 @@ const ComprehensiveSurveyFlow = () => {
     <ComponentContainerCard
       id="comprehensive-survey-flow"
       title="Complete Survey Flow: All 5 Questions Connected"
-      description="Comprehensive Sankey diagram showing the complete journey from respondents through all survey questions: Who → Cafe → Location → Coffee → Dessert Rating"
+      description="Traditional Sankey diagram showing the complete journey from respondents through all survey questions: Who → Cafe → Location → Coffee → Dessert Rating"
     >
       <SankeyChart 
         data={comprehensiveSurveyFlow} 

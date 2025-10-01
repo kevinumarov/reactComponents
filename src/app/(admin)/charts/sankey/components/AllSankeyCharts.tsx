@@ -43,6 +43,15 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
+    // Add zoom and pan functionality
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        g.attr('transform', `translate(${margin.left},${margin.top}) ${event.transform}`)
+      })
+
+    svg.call(zoom)
+
     // Sankey generator with proper node width for visibility
     const sankeyGenerator = sankey()
       .nodeWidth(20) // Wider nodes for better visibility and connection

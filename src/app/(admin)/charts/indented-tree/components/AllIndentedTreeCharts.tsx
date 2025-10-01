@@ -54,6 +54,15 @@ const IndentedTreeChart = ({ data, width = 800, height = 600 }: IndentedTreeChar
       .attr('font-size', 12)
       .attr('transform', `translate(${margin.left},${margin.top - x0 + dx})`)
 
+    // Add zoom and pan functionality
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 3])
+      .on('zoom', (event) => {
+        g.attr('transform', `translate(${margin.left},${margin.top - x0 + dx}) ${event.transform}`)
+      })
+
+    svg.call(zoom)
+
     // Color scale based on depth
     const colorScale = d3.scaleOrdinal(d3.schemeCategory10)
     
@@ -290,7 +299,7 @@ const SurveyHierarchyTree = () => {
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Navigation:</strong> Click circles with minus signs to collapse/expand branches. 
-          Hover over nodes for detailed information.
+          Hover over nodes for detailed information. Use mouse wheel to zoom, drag to pan.
           <br />
           <em>Node size represents response volume. Colors indicate hierarchy levels.</em>
         </div>

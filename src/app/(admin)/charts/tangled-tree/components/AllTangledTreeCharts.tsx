@@ -24,6 +24,15 @@ const TangledTreeChart = ({ data, width = 900, height = 600 }: TangledTreeChartP
     const chartWidth = width - margin.left - margin.right
     const chartHeight = height - margin.top - margin.bottom
 
+    // Add zoom and pan functionality
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        g.attr('transform', `translate(${margin.left},${margin.top}) ${event.transform}`)
+      })
+
+    svg.call(zoom)
+
     const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
@@ -224,7 +233,7 @@ const SurveyResponseTree = () => {
           <span className="badge bg-warning me-1">Medium Satisfaction</span>
           <span className="badge bg-danger me-2">Low Satisfaction</span>
           <br />
-          <em>Node size represents response volume. Hover for detailed information.</em>
+          <em>Node size represents response volume. Hover for detailed information. Use mouse wheel to zoom, drag to pan.</em>
         </div>
       </div>
     </ComponentContainerCard>
@@ -242,7 +251,7 @@ const CustomerJourneyTree = () => {
         <div className="text-muted small text-center">
           <strong>Survey Journey:</strong> Respondents → Cafe Selection → Final Preferences
           <br />
-          <em>Curved connections show the complex relationships in survey responses. Click and hover to explore.</em>
+          <em>Curved connections show the complex relationships in survey responses. Click and hover to explore. Use mouse wheel to zoom, drag to pan.</em>
         </div>
       </div>
     </ComponentContainerCard>

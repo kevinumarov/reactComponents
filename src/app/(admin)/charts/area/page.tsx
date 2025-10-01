@@ -8,23 +8,26 @@ import AllAreaCharts from './components/AllAreaCharts'
 const AreaCharts = () => {
   return (
     <>
-      <PageBreadcrumb subName="Charts" title="Area Charts" />
-      <PageMetaData title="Area Charts" />
+      <PageBreadcrumb subName="Survey Analysis" title="NPS Dashboard" />
+      <PageMetaData title="NPS Dashboard - Area Charts" />
 
       <Row>
         <Col xl={9}>
           <Card>
             <CardBody>
               <CardTitle as={'h5'} className="anchor" id="overview">
-                Overview
+                NPS Dashboard Overview
                 <a
                   className="btn btn-sm btn-outline-success rounded-2 float-end"
-                  href="https://apexcharts.com/javascript-chart-demos/"
+                  href="https://www.netpromoterscore.com/"
                   target="_blank">
-                  Official Website
+                  Learn About NPS
                 </a>
               </CardTitle>
-              <p className="text-muted mb-3">ApexCharts is loaded with powerful features to fulfill your data-visualization needs.</p>
+              <p className="text-muted mb-3">
+                Net Promoter Score (NPS) is a key metric for measuring customer loyalty and satisfaction. 
+                These interactive area charts provide comprehensive insights into NPS trends, segmentation, and survey performance.
+              </p>
             </CardBody>
           </Card>
           <AllAreaCharts />
@@ -32,14 +35,14 @@ const AreaCharts = () => {
         <Col xl={3}>
           <UIExamplesList
             examples={[
-              { link: '#overview', label: 'Overview' },
-              { link: '#basic', label: 'Basic Area Chart' },
-              { link: '#spline', label: 'Spline Area' },
-              { link: '#datetime', label: 'Area Chart - Datetime X-axis' },
-              { link: '#negative', label: 'Area with Negative Values' },
-              { link: '#stacked', label: 'Stacked Area' },
-              { link: '#timeSeries', label: 'Irregular TimeSeries' },
-              { link: '#chart-nullvalues', label: 'Area Chart with Null values' },
+              { link: '#overview', label: 'NPS Overview' },
+              { link: '#basic', label: 'NPS Trends' },
+              { link: '#spline', label: 'NPS Segmentation' },
+              { link: '#datetime', label: 'Daily NPS Tracking' },
+              { link: '#negative', label: 'Sentiment Analysis' },
+              { link: '#stacked', label: 'Survey Volume by Channel' },
+              { link: '#timeSeries', label: 'Multi-Dimensional Satisfaction' },
+              { link: '#chart-nullvalues', label: 'Completion Rate Monitoring' },
             ]}
           />
         </Col>

@@ -1681,6 +1681,17 @@ const series = {
   },
 }
 
+// NPS Survey Data
+const npsData = {
+  scores: [42, 38, 45, 51, 49, 55, 58, 62, 59, 65, 68, 71, 69, 73, 76, 74, 78, 81, 79, 83],
+  dates: [
+    'Jan 2023', 'Feb 2023', 'Mar 2023', 'Apr 2023', 'May 2023', 'Jun 2023',
+    'Jul 2023', 'Aug 2023', 'Sep 2023', 'Oct 2023', 'Nov 2023', 'Dec 2023',
+    'Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024',
+    'Jul 2024', 'Aug 2024'
+  ]
+}
+
 export const basicChartOpts: ApexOptions = {
   chart: {
     toolbar: {
@@ -1697,35 +1708,127 @@ export const basicChartOpts: ApexOptions = {
   },
   stroke: {
     width: 3,
-    curve: 'straight',
+    curve: 'smooth',
   },
-  colors: ['#4ecac2'],
+  colors: ['#22c55e'],
   series: [
     {
-      name: 'STOCK ABC',
-      data: series.monthDataSeries2.prices,
+      name: 'NPS Score',
+      data: npsData.scores,
     },
   ],
   title: {
-    text: 'Fundamental Analysis of Stocks',
-    align: 'right',
+    text: 'Net Promoter Score Trends',
+    align: 'left',
+    style: {
+      fontSize: '18px',
+      fontWeight: 'bold',
+    },
   },
   subtitle: {
-    text: 'Price Movements',
+    text: 'Customer Loyalty & Satisfaction Tracking',
     align: 'left',
+    style: {
+      fontSize: '14px',
+      color: '#6b7280',
+    },
   },
-  labels: series.monthDataSeries2.dates,
+  labels: npsData.dates,
   xaxis: {
-    type: 'datetime',
+    type: 'category',
+    labels: {
+      style: {
+        colors: '#6b7280',
+      },
+    },
   },
   yaxis: {
     opposite: false,
+    min: 0,
+    max: 100,
+    labels: {
+      formatter: function (val: number) {
+        return val.toFixed(0)
+      },
+      style: {
+        colors: '#6b7280',
+      },
+    },
+    title: {
+      text: 'NPS Score',
+      style: {
+        color: '#374151',
+        fontSize: '12px',
+        fontWeight: 'bold',
+      },
+    },
   },
   legend: {
     horizontalAlign: 'left',
   },
   grid: {
-    borderColor: '#4ecac2',
+    borderColor: '#e5e7eb',
+    strokeDashArray: 3,
+  },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      shadeIntensity: 1,
+      opacityFrom: 0.7,
+      opacityTo: 0.3,
+      stops: [0, 90, 100],
+      colorStops: [
+        {
+          offset: 0,
+          color: '#22c55e',
+          opacity: 0.7
+        },
+        {
+          offset: 100,
+          color: '#22c55e',
+          opacity: 0.3
+        }
+      ]
+    },
+  },
+  annotations: {
+    yaxis: [
+      {
+        y: 50,
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+        strokeDashArray: 5,
+        label: {
+          text: 'Good NPS Threshold (50+)',
+          style: {
+            color: '#fff',
+            background: '#f59e0b',
+            fontSize: '12px',
+          },
+        },
+      },
+      {
+        y: 70,
+        borderColor: '#10b981',
+        borderWidth: 2,
+        strokeDashArray: 5,
+        label: {
+          text: 'Excellent NPS (70+)',
+          style: {
+            color: '#fff',
+            background: '#10b981',
+            fontSize: '12px',
+          },
+        },
+      },
+    ],
+  },
+  tooltip: {
+    y: {
+      formatter: function (val: number) {
+        return val + ' NPS Score'
+      },
+    },
   },
   responsive: [
     {
@@ -1744,6 +1847,14 @@ export const basicChartOpts: ApexOptions = {
   ],
 }
 
+// NPS Segmentation Data (Promoters, Passives, Detractors)
+const npsSegmentData = {
+  promoters: [45, 42, 48, 52, 49, 56, 59, 63, 61, 67, 70, 73, 71, 75, 78, 76, 80, 83, 81, 85],
+  passives: [35, 38, 32, 29, 33, 28, 26, 24, 27, 23, 20, 18, 21, 17, 15, 17, 13, 11, 13, 10],
+  detractors: [20, 20, 20, 19, 18, 16, 15, 13, 12, 10, 10, 9, 8, 8, 7, 7, 7, 6, 6, 5],
+  months: ['Jan 23', 'Feb 23', 'Mar 23', 'Apr 23', 'May 23', 'Jun 23', 'Jul 23', 'Aug 23', 'Sep 23', 'Oct 23', 'Nov 23', 'Dec 23', 'Jan 24', 'Feb 24', 'Mar 24', 'Apr 24', 'May 24', 'Jun 24', 'Jul 24', 'Aug 24']
+}
+
 export const spilineChart: ApexOptions = {
   chart: {
     toolbar: {
@@ -1759,68 +1870,173 @@ export const spilineChart: ApexOptions = {
     width: 3,
     curve: 'smooth',
   },
-  colors: ['#1c84ee', '#22c55e'],
+  colors: ['#22c55e', '#f59e0b', '#ef4444'],
   series: [
     {
-      name: 'Series 1',
-      data: [92, 88, 98, 72, 92, 100, 122],
+      name: 'Promoters (9-10)',
+      data: npsSegmentData.promoters,
     },
     {
-      name: 'Series 2',
-      data: [102, 98, 108, 82, 102, 110, 134],
+      name: 'Passives (7-8)',
+      data: npsSegmentData.passives,
+    },
+    {
+      name: 'Detractors (0-6)',
+      data: npsSegmentData.detractors,
     },
   ],
+  title: {
+    text: 'NPS Segmentation Analysis',
+    align: 'left',
+    style: {
+      fontSize: '18px',
+      fontWeight: 'bold',
+    },
+  },
+  subtitle: {
+    text: 'Promoters, Passives & Detractors Distribution',
+    align: 'left',
+    style: {
+      fontSize: '14px',
+      color: '#6b7280',
+    },
+  },
   legend: {
     offsetY: 5,
+    position: 'top',
+    horizontalAlign: 'right',
   },
   xaxis: {
-    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    categories: npsSegmentData.months,
+    labels: {
+      style: {
+        colors: '#6b7280',
+      },
+    },
+  },
+  yaxis: {
+    labels: {
+      formatter: function (val: number) {
+        return val + '%'
+      },
+      style: {
+        colors: '#6b7280',
+      },
+    },
+    title: {
+      text: 'Percentage of Respondents',
+      style: {
+        color: '#374151',
+        fontSize: '12px',
+        fontWeight: 'bold',
+      },
+    },
   },
   tooltip: {
-    fixed: {
-      enabled: false,
-      position: 'topRight',
+    shared: true,
+    intersect: false,
+    y: {
+      formatter: function (val: number) {
+        return val + '% of respondents'
+      },
+    },
+  },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      opacityFrom: 0.6,
+      opacityTo: 0.3,
     },
   },
   grid: {
     row: {
-      colors: ['transparent', 'transparent'], // takes an array which will be repeated on columns
+      colors: ['transparent', 'transparent'],
       opacity: 0.2,
     },
-    borderColor: '#1c84ee',
+    borderColor: '#e5e7eb',
+    strokeDashArray: 3,
     padding: {
       bottom: 5,
     },
   },
 }
 
+// Generate NPS time series data
+const generateNPSTimeSeries = () => {
+  const data = []
+  let baseDate = new Date('2023-01-01').getTime()
+  let baseScore = 45
+  
+  for (let i = 0; i < 365; i++) {
+    // Add some realistic variation to NPS scores
+    const variation = (Math.random() - 0.5) * 8 // ±4 points variation
+    const trendIncrease = i * 0.1 // Gradual improvement over time
+    const seasonalEffect = Math.sin((i / 365) * 2 * Math.PI) * 3 // Seasonal variation
+    
+    baseScore = Math.max(0, Math.min(100, baseScore + variation + trendIncrease/30 + seasonalEffect/10))
+    data.push([baseDate + (i * 86400000), Math.round(baseScore)])
+  }
+  return data
+}
+
+const npsTimeSeriesData = generateNPSTimeSeries()
+
 export const dateTimeChartOpts: ApexOptions = {
   annotations: {
     yaxis: [
       {
-        y: 30,
-        borderColor: '#999',
+        y: 50,
+        borderColor: '#f59e0b',
+        borderWidth: 2,
+        strokeDashArray: 5,
         label: {
-          // show: true,
-          text: 'Support',
+          text: 'Good NPS (50+)',
           style: {
             color: '#fff',
-            background: '#00E396',
+            background: '#f59e0b',
+            fontSize: '11px',
+          },
+        },
+      },
+      {
+        y: 70,
+        borderColor: '#10b981',
+        borderWidth: 2,
+        strokeDashArray: 5,
+        label: {
+          text: 'Excellent NPS (70+)',
+          style: {
+            color: '#fff',
+            background: '#10b981',
+            fontSize: '11px',
           },
         },
       },
     ],
     xaxis: [
       {
-        x: new Date('14 Nov 2012').getTime(),
-        borderColor: '#999',
-        // yAxisIndex: 0,
+        x: new Date('2023-06-01').getTime(),
+        borderColor: '#3b82f6',
+        strokeDashArray: 5,
         label: {
-          // show: true,
-          text: 'Rally',
+          text: 'Product Launch',
           style: {
             color: '#fff',
-            background: '#775DD0',
+            background: '#3b82f6',
+            fontSize: '11px',
+          },
+        },
+      },
+      {
+        x: new Date('2023-10-01').getTime(),
+        borderColor: '#8b5cf6',
+        strokeDashArray: 5,
+        label: {
+          text: 'Customer Success Initiative',
+          style: {
+            color: '#fff',
+            background: '#8b5cf6',
+            fontSize: '11px',
           },
         },
       },
@@ -1837,20 +2053,30 @@ export const dateTimeChartOpts: ApexOptions = {
     width: 3,
     curve: 'smooth',
   },
-  colors: ['#4ecac2'],
+  colors: ['#3b82f6'],
   dataLabels: {
     enabled: false,
   },
+  title: {
+    text: 'Daily NPS Tracking with Key Events',
+    align: 'left',
+    style: {
+      fontSize: '18px',
+      fontWeight: 'bold',
+    },
+  },
+  subtitle: {
+    text: 'Interactive Timeline with Business Milestones',
+    align: 'left',
+    style: {
+      fontSize: '14px',
+      color: '#6b7280',
+    },
+  },
   series: [
     {
-      data: [
-        [1327359600000, 30.95],
-        [1327446000000, 31.34],
-        [1327532400000, 31.18],
-        [1327618800000, 31.05],
-        [1327878000000, 31.0],
-        [1327964400000, 30.95],
-        [1328050800000, 31.24],
+      name: 'Daily NPS Score',
+      data: npsTimeSeriesData,
         [1328137200000, 31.29],
         [1328223600000, 31.85],
         [1328482800000, 31.86],

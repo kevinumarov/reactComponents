@@ -13,7 +13,7 @@ import { Button } from 'react-bootstrap'
 
 const BasicAreaChart = () => {
   return (
-    <ComponentContainerCard id="basic" title="Basic Area Chart">
+    <ComponentContainerCard id="basic" title="Net Promoter Score Trends" description="Track NPS performance over time with threshold indicators">
       <ReactApexChart height={380} options={basicChartOpts} series={basicChartOpts.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )
@@ -21,7 +21,7 @@ const BasicAreaChart = () => {
 
 const SplineAreaChart = () => {
   return (
-    <ComponentContainerCard id="spline" title="Spline Area">
+    <ComponentContainerCard id="spline" title="NPS Segmentation Analysis" description="Breakdown of Promoters, Passives, and Detractors over time">
       <ReactApexChart height={380} options={spilineChart} series={spilineChart.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )
@@ -29,7 +29,7 @@ const SplineAreaChart = () => {
 
 const DateTimeAreaChart = () => {
   return (
-    <ComponentContainerCard id="datetime" title="Area Chart - Datetime X-axis">
+    <ComponentContainerCard id="datetime" title="Daily NPS Tracking with Key Events" description="Interactive timeline showing NPS trends with business milestones">
       <div className="toolbar apex-toolbar icons-center justify-content-end w-100 gap-1">
         <Button variant="soft-secondary" size="sm" id="one_month">
           1M
@@ -54,7 +54,7 @@ const DateTimeAreaChart = () => {
 
 const NegativeValuesChart = () => {
   return (
-    <ComponentContainerCard id="negative" title="Area with Negative Values">
+    <ComponentContainerCard id="negative" title="Survey Sentiment Analysis" description="Positive vs negative feedback trends with baseline comparison">
       <ReactApexChart height={380} options={negativeValuesChartOpts} series={negativeValuesChartOpts.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )
@@ -62,7 +62,7 @@ const NegativeValuesChart = () => {
 
 const StackedChart = () => {
   return (
-    <ComponentContainerCard id="stacked" title="Stacked Area">
+    <ComponentContainerCard id="stacked" title="Survey Response Volume by Channel" description="Multi-channel survey distribution showing email, web, mobile, and phone responses">
       <ReactApexChart height={422} options={stackedChartOpts} series={stackedChartOpts.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )
@@ -70,7 +70,7 @@ const StackedChart = () => {
 
 const IrregularTimeSeriesChart = () => {
   return (
-    <ComponentContainerCard id="timeSeries" title="Irregular TimeSeries">
+    <ComponentContainerCard id="timeSeries" title="Multi-Dimensional Satisfaction Tracking" description="Overall, product, and service satisfaction scores comparison">
       <ReactApexChart height={380} options={irregularTimeSeriesOpts} series={irregularTimeSeriesOpts.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )
@@ -78,7 +78,7 @@ const IrregularTimeSeriesChart = () => {
 
 const AreaChartWithNullValues = () => {
   return (
-    <ComponentContainerCard id="chart-nullvalues" title="Area Chart with Null values">
+    <ComponentContainerCard id="chart-nullvalues" title="Survey Completion Rate Monitoring" description="Daily completion rates with missing data points for non-survey days">
       <ReactApexChart height={380} options={areaNullValueChartOpts} series={areaNullValueChartOpts.series} type="area" className="apex-charts" />
     </ComponentContainerCard>
   )

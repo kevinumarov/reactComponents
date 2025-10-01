@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 import ComponentContainerCard from '@/components/ComponentContainerCard'
-import { surveyHierarchyData, organizationalSurveyData, marketResearchTreeData } from '../data'
+import { coffeeSurveyHierarchyData, organizationalSurveyData, marketResearchTreeData } from '../data'
 
 interface IndentedTreeChartProps {
   data: any
@@ -283,10 +283,10 @@ const IndentedTreeChart = ({ data, width = 800, height = 600 }: IndentedTreeChar
 const SurveyHierarchyTree = () => {
   return (
     <ComponentContainerCard
-      title="Customer Satisfaction Survey Hierarchy"
-      description="Interactive indented tree showing hierarchical breakdown of survey responses across different satisfaction dimensions"
+      title="Coffee Survey Hierarchy"
+      description="Interactive indented tree showing hierarchical breakdown of coffee survey responses across respondents, preferences, and ratings"
     >
-      <IndentedTreeChart data={surveyHierarchyData} width={800} height={700} />
+      <IndentedTreeChart data={coffeeSurveyHierarchyData} width={800} height={700} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Navigation:</strong> Click circles with minus signs to collapse/expand branches. 

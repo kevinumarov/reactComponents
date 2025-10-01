@@ -1,135 +1,132 @@
-// Sample data for Indented Tree visualizations - Perfect for hierarchical survey analysis
-export const surveyHierarchyData = {
-  name: "Customer Satisfaction Survey",
-  value: 1250,
+// Coffee Survey Data for Indented Tree visualizations - Perfect for hierarchical survey analysis
+export const coffeeSurveyHierarchyData = {
+  name: "Coffee Preference Survey Results",
+  value: 8,
   children: [
     {
-      name: "Product Experience",
-      value: 450,
+      name: "Survey Respondents",
+      value: 8,
       children: [
         {
-          name: "Quality Assessment",
-          value: 200,
+          name: "Individual Responses",
+          value: 8,
           children: [
-            { name: "Excellent", value: 85 },
-            { name: "Good", value: 75 },
-            { name: "Average", value: 30 },
-            { name: "Poor", value: 10 }
-          ]
-        },
-        {
-          name: "Feature Satisfaction",
-          value: 150,
-          children: [
-            { name: "Core Features", value: 90 },
-            { name: "Advanced Features", value: 40 },
-            { name: "Premium Features", value: 20 }
-          ]
-        },
-        {
-          name: "Usability",
-          value: 100,
-          children: [
-            { name: "Very Easy", value: 45 },
-            { name: "Easy", value: 35 },
-            { name: "Moderate", value: 15 },
-            { name: "Difficult", value: 5 }
+            { name: "조남철", value: 1 },
+            { name: "한동주", value: 1 },
+            { name: "이경능", value: 1 },
+            { name: "김안나", value: 1 },
+            { name: "김민주", value: 1 },
+            { name: "유케빈", value: 1 },
+            { name: "김영우", value: 1 },
+            { name: "하재훈", value: 1 }
           ]
         }
       ]
     },
     {
-      name: "Customer Service",
-      value: 350,
+      name: "Cafe Preferences",
+      value: 8,
       children: [
         {
-          name: "Response Time",
-          value: 120,
+          name: "Ink Coffee",
+          value: 4,
           children: [
-            { name: "< 1 hour", value: 50 },
-            { name: "1-4 hours", value: 40 },
-            { name: "4-24 hours", value: 25 },
-            { name: "> 24 hours", value: 5 }
+            { name: "조남철", value: 1 },
+            { name: "한동주", value: 1 },
+            { name: "이경능", value: 1 },
+            { name: "김안나", value: 1 }
           ]
         },
         {
-          name: "Support Quality",
-          value: 130,
+          name: "Starbucks",
+          value: 2,
           children: [
-            { name: "Excellent", value: 60 },
-            { name: "Good", value: 45 },
-            { name: "Average", value: 20 },
-            { name: "Poor", value: 5 }
+            { name: "김민주", value: 1 },
+            { name: "유케빈", value: 1 }
           ]
         },
         {
-          name: "Resolution Rate",
-          value: 100,
+          name: "Hollys Coffee",
+          value: 2,
           children: [
-            { name: "First Contact", value: 40 },
-            { name: "Follow-up Required", value: 35 },
-            { name: "Multiple Contacts", value: 20 },
-            { name: "Unresolved", value: 5 }
+            { name: "김영우", value: 1 },
+            { name: "하재훈", value: 1 }
           ]
         }
       ]
     },
     {
-      name: "Value Proposition",
-      value: 300,
+      name: "Coffee Preferences",
+      value: 8,
       children: [
         {
-          name: "Pricing",
-          value: 150,
+          name: "Iced Americano",
+          value: 2,
           children: [
-            { name: "Excellent Value", value: 35 },
-            { name: "Good Value", value: 55 },
-            { name: "Fair Value", value: 45 },
-            { name: "Poor Value", value: 15 }
+            { name: "한동주", value: 1 },
+            { name: "김안나", value: 1 }
           ]
         },
         {
-          name: "Competitive Position",
-          value: 100,
+          name: "Cold Brew",
+          value: 1,
           children: [
-            { name: "Much Better", value: 25 },
-            { name: "Better", value: 40 },
-            { name: "Similar", value: 30 },
-            { name: "Worse", value: 5 }
+            { name: "하재훈", value: 1 }
           ]
         },
         {
-          name: "ROI Perception",
-          value: 50,
+          name: "Cafe Latte",
+          value: 2,
           children: [
-            { name: "High ROI", value: 20 },
-            { name: "Moderate ROI", value: 20 },
-            { name: "Low ROI", value: 10 }
+            { name: "이경능", value: 1 },
+            { name: "김민주", value: 1 }
+          ]
+        },
+        {
+          name: "Green Tea Latte",
+          value: 2,
+          children: [
+            { name: "조남철", value: 1 },
+            { name: "유케빈", value: 1 }
+          ]
+        },
+        {
+          name: "Flat White",
+          value: 1,
+          children: [
+            { name: "김영우", value: 1 }
           ]
         }
       ]
     },
     {
-      name: "Future Intent",
-      value: 150,
+      name: "Dessert Ratings",
+      value: 8,
       children: [
         {
-          name: "Repurchase Intent",
-          value: 80,
+          name: "Dessert 4점",
+          value: 1,
           children: [
-            { name: "Definitely", value: 30 },
-            { name: "Probably", value: 25 },
-            { name: "Maybe", value: 20 },
-            { name: "Unlikely", value: 5 }
+            { name: "하재훈", value: 1 }
           ]
         },
         {
-          name: "Recommendation",
-          value: 70,
+          name: "Dessert 5점",
+          value: 1,
           children: [
-            { name: "Promoters", value: 35 },
-            { name: "Passives", value: 25 },
-            { name: "Detractors", value: 10 }
+            { name: "김영우", value: 1 }
+          ]
+        },
+        {
+          name: "Dessert 7점",
+          value: 6,
+          children: [
+            { name: "조남철", value: 1 },
+            { name: "한동주", value: 1 },
+            { name: "이경능", value: 1 },
+            { name: "김안나", value: 1 },
+            { name: "김민주", value: 1 },
+            { name: "유케빈", value: 1 }
           ]
         }
       ]

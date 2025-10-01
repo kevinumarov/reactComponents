@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
 import ComponentContainerCard from '@/components/ComponentContainerCard'
-import { surveyResponseTreeData, customerJourneyTreeData } from '../data'
+import { coffeeSurveyTreeData, coffeeSurveyJourneyData } from '../data'
 
 interface TangledTreeChartProps {
   data: any
@@ -213,10 +213,10 @@ const TangledTreeChart = ({ data, width = 900, height = 600 }: TangledTreeChartP
 const SurveyResponseTree = () => {
   return (
     <ComponentContainerCard
-      title="Survey Response Analysis Tree"
-      description="Tangled tree visualization showing hierarchical relationships in survey responses across demographics, usage patterns, and satisfaction levels"
+      title="Coffee Survey Response Analysis Tree"
+      description="Tangled tree visualization showing hierarchical relationships in coffee survey responses across respondents, cafe preferences, and satisfaction levels"
     >
-      <TangledTreeChart data={surveyResponseTreeData} width={900} height={600} />
+      <TangledTreeChart data={coffeeSurveyTreeData} width={900} height={600} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Legend:</strong> 
@@ -234,15 +234,15 @@ const SurveyResponseTree = () => {
 const CustomerJourneyTree = () => {
   return (
     <ComponentContainerCard
-      title="Customer Journey Tree Analysis"
-      description="Interactive tangled tree showing the complex relationships between customer touchpoints, from awareness to decision stages"
+      title="Coffee Survey Journey Tree Analysis"
+      description="Interactive tangled tree showing the complete coffee survey journey from respondent identification to final preferences"
     >
-      <TangledTreeChart data={customerJourneyTreeData} width={900} height={650} />
+      <TangledTreeChart data={coffeeSurveyJourneyData} width={900} height={650} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
-          <strong>Journey Stages:</strong> Awareness → Consideration → Decision
+          <strong>Survey Journey:</strong> Respondents → Cafe Selection → Final Preferences
           <br />
-          <em>Curved connections show the tangled nature of modern customer journeys. Click and hover to explore.</em>
+          <em>Curved connections show the complex relationships in survey responses. Click and hover to explore.</em>
         </div>
       </div>
     </ComponentContainerCard>

@@ -1,71 +1,63 @@
-// Sample data for Tangled Tree visualizations
-export const surveyResponseTreeData = {
-  name: "Survey Responses",
+// Coffee Survey Data for Tangled Tree visualizations
+export const coffeeSurveyTreeData = {
+  name: "Coffee Preference Survey",
   children: [
     {
-      name: "Demographics",
+      name: "Respondent Profiles",
       children: [
         {
-          name: "Age Groups",
+          name: "Active Respondents",
           children: [
-            { name: "18-25", value: 120, satisfaction: "high" },
-            { name: "26-35", value: 200, satisfaction: "medium" },
-            { name: "36-45", value: 150, satisfaction: "high" },
-            { name: "46-55", value: 100, satisfaction: "low" },
-            { name: "55+", value: 80, satisfaction: "medium" }
-          ]
-        },
-        {
-          name: "Location",
-          children: [
-            { name: "Urban", value: 300, satisfaction: "high" },
-            { name: "Suburban", value: 200, satisfaction: "medium" },
-            { name: "Rural", value: 150, satisfaction: "medium" }
+            { name: "조남철", value: 1, satisfaction: "high" },
+            { name: "한동주", value: 1, satisfaction: "high" },
+            { name: "이경능", value: 1, satisfaction: "medium" },
+            { name: "김안나", value: 1, satisfaction: "high" },
+            { name: "김민주", value: 1, satisfaction: "medium" },
+            { name: "유케빈", value: 1, satisfaction: "high" },
+            { name: "김영우", value: 1, satisfaction: "medium" },
+            { name: "하재훈", value: 1, satisfaction: "high" }
           ]
         }
       ]
     },
     {
-      name: "Product Usage",
+      name: "Cafe Preferences",
       children: [
         {
-          name: "Frequency",
+          name: "Popular Choices",
           children: [
-            { name: "Daily", value: 180, satisfaction: "high" },
-            { name: "Weekly", value: 220, satisfaction: "high" },
-            { name: "Monthly", value: 150, satisfaction: "medium" },
-            { name: "Rarely", value: 100, satisfaction: "low" }
+            { name: "Ink Coffee", value: 4, satisfaction: "high" },
+            { name: "Starbucks", value: 2, satisfaction: "medium" },
+            { name: "Hollys Coffee", value: 2, satisfaction: "medium" }
           ]
         },
         {
-          name: "Features Used",
+          name: "Location Verification",
           children: [
-            { name: "Basic Features", value: 400, satisfaction: "medium" },
-            { name: "Advanced Features", value: 200, satisfaction: "high" },
-            { name: "Premium Features", value: 50, satisfaction: "high" }
+            { name: "서울특별시 금천구", value: 8, satisfaction: "high" }
           ]
         }
       ]
     },
     {
-      name: "Satisfaction Levels",
+      name: "Coffee & Dessert Preferences",
       children: [
         {
-          name: "Overall Rating",
+          name: "Coffee Types",
           children: [
-            { name: "Excellent", value: 150, satisfaction: "high" },
-            { name: "Good", value: 250, satisfaction: "high" },
-            { name: "Average", value: 180, satisfaction: "medium" },
-            { name: "Poor", value: 70, satisfaction: "low" }
+            { name: "Iced Americano", value: 2, satisfaction: "high" },
+            { name: "Cold Brew", value: 1, satisfaction: "high" },
+            { name: "Cafe Latte", value: 2, satisfaction: "medium" },
+            { name: "Green Tea Latte", value: 2, satisfaction: "high" },
+            { name: "Flat White", value: 1, satisfaction: "medium" }
           ]
         },
         {
-          name: "Recommendation",
+          name: "Dessert Ratings",
           children: [
-            { name: "Highly Likely", value: 200, satisfaction: "high" },
-            { name: "Likely", value: 180, satisfaction: "medium" },
-            { name: "Neutral", value: 150, satisfaction: "medium" },
-            { name: "Unlikely", value: 120, satisfaction: "low" }
+            { name: "Dessert 4점", value: 1, satisfaction: "medium" },
+            { name: "Dessert 5점", value: 1, satisfaction: "medium" },
+            { name: "Dessert 7점", value: 6, satisfaction: "high" }
           ]
         }
       ]
@@ -73,74 +65,65 @@ export const surveyResponseTreeData = {
   ]
 }
 
-export const customerJourneyTreeData = {
-  name: "Customer Journey",
+export const coffeeSurveyJourneyData = {
+  name: "Coffee Survey Journey",
   children: [
     {
-      name: "Awareness Stage",
+      name: "Survey Participation",
       children: [
         {
-          name: "Marketing Channels",
+          name: "Respondent Identification",
           children: [
-            { name: "Social Media", value: 300, satisfaction: "high" },
-            { name: "Search Ads", value: 250, satisfaction: "medium" },
-            { name: "Word of Mouth", value: 200, satisfaction: "high" },
-            { name: "Email Campaign", value: 150, satisfaction: "medium" }
-          ]
-        },
-        {
-          name: "Content Engagement",
-          children: [
-            { name: "Blog Posts", value: 180, satisfaction: "medium" },
-            { name: "Videos", value: 220, satisfaction: "high" },
-            { name: "Webinars", value: 100, satisfaction: "high" },
-            { name: "Case Studies", value: 80, satisfaction: "medium" }
+            { name: "조남철", value: 1, satisfaction: "high" },
+            { name: "한동주", value: 1, satisfaction: "high" },
+            { name: "이경능", value: 1, satisfaction: "medium" },
+            { name: "김안나", value: 1, satisfaction: "high" },
+            { name: "김민주", value: 1, satisfaction: "medium" },
+            { name: "유케빈", value: 1, satisfaction: "high" },
+            { name: "김영우", value: 1, satisfaction: "medium" },
+            { name: "하재훈", value: 1, satisfaction: "high" }
           ]
         }
       ]
     },
     {
-      name: "Consideration Stage",
+      name: "Cafe Selection Process",
       children: [
         {
-          name: "Research Activities",
+          name: "Cafe Preferences",
           children: [
-            { name: "Product Comparison", value: 200, satisfaction: "medium" },
-            { name: "Reviews Reading", value: 250, satisfaction: "high" },
-            { name: "Demo Requests", value: 120, satisfaction: "high" },
-            { name: "Pricing Research", value: 180, satisfaction: "medium" }
+            { name: "Ink Coffee", value: 4, satisfaction: "high" },
+            { name: "Starbucks", value: 2, satisfaction: "medium" },
+            { name: "Hollys Coffee", value: 2, satisfaction: "medium" }
           ]
         },
         {
-          name: "Touchpoints",
+          name: "Location Confirmation",
           children: [
-            { name: "Website Visit", value: 400, satisfaction: "medium" },
-            { name: "Sales Call", value: 150, satisfaction: "high" },
-            { name: "Live Chat", value: 100, satisfaction: "high" },
-            { name: "Support Ticket", value: 50, satisfaction: "low" }
+            { name: "서울특별시 금천구", value: 8, satisfaction: "high" }
           ]
         }
       ]
     },
     {
-      name: "Decision Stage",
+      name: "Final Preferences",
       children: [
         {
-          name: "Purchase Factors",
+          name: "Coffee Selection",
           children: [
-            { name: "Price", value: 300, satisfaction: "medium" },
-            { name: "Features", value: 250, satisfaction: "high" },
-            { name: "Support Quality", value: 200, satisfaction: "high" },
-            { name: "Brand Trust", value: 180, satisfaction: "high" }
+            { name: "Iced Americano", value: 2, satisfaction: "high" },
+            { name: "Cold Brew", value: 1, satisfaction: "high" },
+            { name: "Cafe Latte", value: 2, satisfaction: "medium" },
+            { name: "Green Tea Latte", value: 2, satisfaction: "high" },
+            { name: "Flat White", value: 1, satisfaction: "medium" }
           ]
         },
         {
-          name: "Final Actions",
+          name: "Dessert Ratings",
           children: [
-            { name: "Purchase", value: 200, satisfaction: "high" },
-            { name: "Trial Signup", value: 150, satisfaction: "medium" },
-            { name: "Newsletter Subscribe", value: 100, satisfaction: "medium" },
-            { name: "Abandoned Cart", value: 80, satisfaction: "low" }
+            { name: "Dessert 4점", value: 1, satisfaction: "medium" },
+            { name: "Dessert 5점", value: 1, satisfaction: "medium" },
+            { name: "Dessert 7점", value: 6, satisfaction: "high" }
           ]
         }
       ]

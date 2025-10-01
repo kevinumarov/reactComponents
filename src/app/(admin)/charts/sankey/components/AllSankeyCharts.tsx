@@ -35,7 +35,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
     d3.select(svgRef.current).selectAll('*').remove()
 
     const svg = d3.select(svgRef.current)
-    const margin = { top: 80, right: 20, bottom: 20, left: 20 } // Increased top margin for repositioned headers
+    const margin = { top: 60, right: 20, bottom: 20, left: 20 } // Adequate top margin for question headers only
     const chartWidth = width - margin.left - margin.right
     const chartHeight = height - margin.top - margin.bottom
 
@@ -119,24 +119,15 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
         if (category && columnCenters.has(category)) {
           const centerX = columnCenters.get(category)
           
-          // Main question title
+          // Main question title only (no subtitle)
           g.append('text')
             .attr('x', centerX) // Center on column
-            .attr('y', -35)
+            .attr('y', -25) // Positioned closer since no subtitle
             .attr('text-anchor', 'middle')
-            .style('font-size', '12px')
-            .style('font-weight', 'bold')
+            .style('font-size', '11px')
+            .style('font-weight', '600')
             .style('fill', '#333')
-            .text(header.title.length > 25 ? header.title.substring(0, 25) + '...' : header.title)
-          
-          // Subtitle
-          g.append('text')
-            .attr('x', centerX)
-            .attr('y', -20)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '10px')
-            .style('fill', '#666')
-            .text(header.subtitle)
+            .text(header.title.length > 30 ? header.title.substring(0, 30) + '...' : header.title)
         }
       })
     }

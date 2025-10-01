@@ -35,7 +35,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
     d3.select(svgRef.current).selectAll('*').remove()
 
     const svg = d3.select(svgRef.current)
-    const margin = { top: 60, right: 20, bottom: 20, left: 20 } // Increased top margin for headers
+    const margin = { top: 80, right: 20, bottom: 20, left: 20 } // Increased top margin for repositioned headers
     const chartWidth = width - margin.left - margin.right
     const chartHeight = height - margin.top - margin.bottom
 
@@ -43,12 +43,12 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`)
 
-    // Sankey generator with narrow nodes like screenshot
+    // Sankey generator with proper node width for visibility
     const sankeyGenerator = sankey()
-      .nodeWidth(8) // Narrow node width to match screenshot
-      .nodePadding(15) // Adequate padding for narrow nodes
-      .extent([[1, 1], [chartWidth - 1, chartHeight - 6]]) // Standard margins
-      .iterations(32) // Standard iterations
+      .nodeWidth(20) // Wider nodes for better visibility and connection
+      .nodePadding(12) // Balanced padding
+      .extent([[10, 10], [chartWidth - 10, chartHeight - 10]]) // Better margins for connections
+      .iterations(64) // More iterations for better layout
 
     // Map ids
     const nodeMap = new Map()
@@ -77,12 +77,27 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
 
     // Add question headers if available
     if (data.questionHeaders) {
-      // Calculate column positions based on node x positions
-      const columnPositions = new Map()
+      // Calculate column center positions based on all nodes in each category
+      const columnCenters = new Map()
+      const categoryNodes = new Map()
+      
+      // Group nodes by category
       graph.nodes.forEach((node: any) => {
         const category = data.nodes.find((n: any) => n.id === node.id)?.category
-        if (category && !columnPositions.has(category)) {
-          columnPositions.set(category, node.x0)
+        if (category) {
+          if (!categoryNodes.has(category)) {
+            categoryNodes.set(category, [])
+          }
+          categoryNodes.get(category).push(node)
+        }
+      })
+      
+      // Calculate center position for each category column
+      categoryNodes.forEach((nodes, category) => {
+        if (nodes.length > 0) {
+          // Use the center of the node width for proper alignment
+          const centerX = nodes[0].x0 + (nodes[0].x1 - nodes[0].x0) / 2
+          columnCenters.set(category, centerX)
         }
       })
 
@@ -101,23 +116,23 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           categoryToPosition[key as keyof typeof categoryToPosition] === header.position
         )
         
-        if (category && columnPositions.has(category)) {
-          const xPos = columnPositions.get(category)
+        if (category && columnCenters.has(category)) {
+          const centerX = columnCenters.get(category)
           
           // Main question title
           g.append('text')
-            .attr('x', xPos + 4) // Center on narrow node width (8/2)
-            .attr('y', -10)
+            .attr('x', centerX) // Center on column
+            .attr('y', -35)
             .attr('text-anchor', 'middle')
             .style('font-size', '12px')
             .style('font-weight', 'bold')
             .style('fill', '#333')
-            .text(header.title.length > 30 ? header.title.substring(0, 30) + '...' : header.title)
+            .text(header.title.length > 25 ? header.title.substring(0, 25) + '...' : header.title)
           
           // Subtitle
           g.append('text')
-            .attr('x', xPos + 4)
-            .attr('y', 5)
+            .attr('x', centerX)
+            .attr('y', -20)
             .attr('text-anchor', 'middle')
             .style('font-size', '10px')
             .style('fill', '#666')

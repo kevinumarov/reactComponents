@@ -286,7 +286,7 @@ const SurveyHierarchyTree = () => {
       title="Coffee Survey Hierarchy"
       description="Interactive indented tree showing hierarchical breakdown of coffee survey responses across respondents, preferences, and ratings"
     >
-      <IndentedTreeChart data={coffeeSurveyHierarchyData} width={800} height={700} />
+      <IndentedTreeChart data={coffeeSurveyHierarchyData} width={1200} height={800} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Navigation:</strong> Click circles with minus signs to collapse/expand branches. 
@@ -305,7 +305,7 @@ const OrganizationalSurveyTree = () => {
       title="Employee Engagement Survey Structure"
       description="Hierarchical view of employee engagement survey results organized by workplace dimensions and satisfaction metrics"
     >
-      <IndentedTreeChart data={organizationalSurveyData} width={800} height={650} />
+      <IndentedTreeChart data={organizationalSurveyData} width={1200} height={750} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Organizational Insights:</strong> Explore engagement factors from high-level categories to specific response details.
@@ -323,7 +323,7 @@ const MarketResearchTree = () => {
       title="Brand Perception Research Tree"
       description="Comprehensive hierarchical analysis of brand perception study results across awareness, attributes, and behavior dimensions"
     >
-      <IndentedTreeChart data={marketResearchTreeData} width={800} height={750} />
+      <IndentedTreeChart data={marketResearchTreeData} width={1200} height={850} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Market Analysis:</strong> Navigate through brand perception layers from awareness to purchase behavior.

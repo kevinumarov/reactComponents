@@ -216,7 +216,7 @@ const SurveyResponseTree = () => {
       title="Coffee Survey Response Analysis Tree"
       description="Tangled tree visualization showing hierarchical relationships in coffee survey responses across respondents, cafe preferences, and satisfaction levels"
     >
-      <TangledTreeChart data={coffeeSurveyTreeData} width={900} height={600} />
+      <TangledTreeChart data={coffeeSurveyTreeData} width={1400} height={700} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Legend:</strong> 
@@ -237,7 +237,7 @@ const CustomerJourneyTree = () => {
       title="Coffee Survey Journey Tree Analysis"
       description="Interactive tangled tree showing the complete coffee survey journey from respondent identification to final preferences"
     >
-      <TangledTreeChart data={coffeeSurveyJourneyData} width={900} height={650} />
+      <TangledTreeChart data={coffeeSurveyJourneyData} width={1400} height={750} />
       <div className="mt-3 d-flex justify-content-center">
         <div className="text-muted small text-center">
           <strong>Survey Journey:</strong> Respondents → Cafe Selection → Final Preferences

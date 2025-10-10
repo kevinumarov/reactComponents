@@ -11,9 +11,11 @@ interface SankeyChartProps {
   height?: number
   selectedRespondent?: string | null
   onRespondentClick?: (respondent: string | null) => void
+  onColumnReorder?: (newOrder: any[]) => void
+  columnOrder?: any[]
 }
 
-const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRespondentClick }: SankeyChartProps) => {
+const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRespondentClick, onColumnReorder, columnOrder }: SankeyChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Respondent → Color map
@@ -119,23 +121,103 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
         'dessert': 4
       }
 
-      // Draw question headers
+      // Draw draggable question headers
       data.questionHeaders.forEach((header: any) => {
         const category = Object.keys(categoryToPosition).find(key => 
           categoryToPosition[key as keyof typeof categoryToPosition] === header.position
         )
-
+        
         if (category && columnCenters.has(category)) {
           const centerX = columnCenters.get(category)
-          // Main question title only (no subtitle)
-          g.append('text')
-            .attr('x', centerX) // Center on column
-            .attr('y', -25) // Positioned closer since no subtitle
+          
+          // Create a group for each header to enable dragging
+          const headerGroup = g.append('g')
+            .attr('class', `header-group header-${category}`)
+            .attr('transform', `translate(${centerX}, -25)`)
+            .style('cursor', onColumnReorder ? 'grab' : 'default')
+          
+          // Background rectangle for better drag target
+          const headerBg = headerGroup.append('rect')
+            .attr('x', -60)
+            .attr('y', -15)
+            .attr('width', 120)
+            .attr('height', 25)
+            .attr('rx', 4)
+            .style('fill', 'rgba(59, 130, 246, 0.1)')
+            .style('stroke', 'rgba(59, 130, 246, 0.3)')
+            .style('stroke-width', 1)
+            .style('opacity', onColumnReorder ? 0.8 : 0)
+          
+          // Main question title
+          headerGroup.append('text')
+            .attr('x', 0)
+            .attr('y', 0)
             .attr('text-anchor', 'middle')
             .style('font-size', '11px')
             .style('font-weight', '600')
             .style('fill', '#333')
+            .style('pointer-events', 'none')
             .text(header.title.length > 30 ? header.title.substring(0, 30) + '...' : header.title)
+          
+          // Add drag behavior if callback is provided
+          if (onColumnReorder && columnOrder) {
+            const drag = d3.drag<SVGGElement, unknown>()
+              .on('start', function() {
+                d3.select(this).style('cursor', 'grabbing')
+                headerBg.style('opacity', 1).style('fill', 'rgba(59, 130, 246, 0.2)')
+              })
+              .on('drag', function(event) {
+                // Visual feedback during drag
+                d3.select(this).attr('transform', `translate(${centerX + event.x}, ${-25 + event.y})`)
+                headerBg.style('fill', 'rgba(59, 130, 246, 0.3)')
+              })
+              .on('end', function(event) {
+                // Reset visual state
+                d3.select(this)
+                  .style('cursor', 'grab')
+                  .attr('transform', `translate(${centerX}, -25)`)
+                headerBg.style('opacity', 0.8).style('fill', 'rgba(59, 130, 246, 0.1)')
+                
+                // Determine new position based on drag distance
+                const dragDistance = event.x
+                const threshold = 100 // Minimum drag distance to trigger reorder
+                
+                if (Math.abs(dragDistance) > threshold) {
+                  const currentIndex = columnOrder.findIndex(col => col.category === category)
+                  let newIndex = currentIndex
+                  
+                  if (dragDistance > 0 && currentIndex < columnOrder.length - 1) {
+                    // Dragged right - move to next position
+                    newIndex = currentIndex + 1
+                  } else if (dragDistance < 0 && currentIndex > 0) {
+                    // Dragged left - move to previous position
+                    newIndex = currentIndex - 1
+                  }
+                  
+                  if (newIndex !== currentIndex) {
+                    // Create new order array
+                    const newOrder = [...columnOrder]
+                    const [movedItem] = newOrder.splice(currentIndex, 1)
+                    newOrder.splice(newIndex, 0, movedItem)
+                    
+                    // Call the reorder callback
+                    onColumnReorder(newOrder)
+                  }
+                }
+              })
+            
+            headerGroup.call(drag)
+            
+            // Add visual indicator for draggable headers
+            headerGroup.append('text')
+              .attr('x', 65)
+              .attr('y', 0)
+              .attr('text-anchor', 'middle')
+              .style('font-size', '10px')
+              .style('fill', '#6b7280')
+              .style('pointer-events', 'none')
+              .text('⋮⋮')
+          }
         }
       })
     }
@@ -486,7 +568,7 @@ const ComprehensiveSurveyFlow = () => {
     <ComponentContainerCard
       id="comprehensive-survey-flow"
       title={`Complete Survey Flow: ${reorderedData.orderString}`}
-      description="Traditional Sankey diagram showing the complete journey from respondents through all survey questions. Use the controls above to reorder the questions and see how the flow changes."
+      description="Interactive Sankey diagram showing the complete journey from respondents through all survey questions. Use the arrow controls above OR drag the question headers directly to reorder columns and see how the flow changes."
     >
       {/* Column Reordering Controls */}
       <div className="mb-4">
@@ -533,7 +615,7 @@ const ComprehensiveSurveyFlow = () => {
             <div className="text-center mt-2">
               <small className="text-muted">
                 <i className="bi bi-info-circle me-1"></i>
-                Use the arrow buttons to reorder the survey questions. The Sankey diagram will update automatically.
+                Use the arrow buttons to reorder questions OR drag the question headers directly in the diagram below.
               </small>
             </div>
           </div>
@@ -546,6 +628,8 @@ const ComprehensiveSurveyFlow = () => {
         height={900} 
         selectedRespondent={selectedRespondent}
         onRespondentClick={setSelectedRespondent}
+        onColumnReorder={setColumnOrder}
+        columnOrder={columnOrder}
       />
       
       {/* Color Legend for Respondents */}

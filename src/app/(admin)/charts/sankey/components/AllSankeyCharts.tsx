@@ -503,6 +503,7 @@ const ComprehensiveSurveyFlow = () => {
   const [selectedRespondent, setSelectedRespondent] = useState<string | null>(null)
   const [showPositionSelector, setShowPositionSelector] = useState(false)
   const [tempColumnOrder, setTempColumnOrder] = useState<any[]>([])
+  const [showJourneys, setShowJourneys] = useState(false)
   
   // Column order state - default order
   const [columnOrder, setColumnOrder] = useState([
@@ -691,8 +692,61 @@ const ComprehensiveSurveyFlow = () => {
     setShowPositionSelector(false)
   }
 
+  // Function to calculate journey paths based on current column order
+  const calculateJourneyPaths = (data: any, currentColumnOrder: any[]) => {
+    const journeyData = data.journeys
+    const journeyPaths: { [key: string]: { count: number, respondents: string[] } } = {}
+    const totalJourneys = Object.keys(journeyData).length
+    
+    // Build journey paths based on current column order
+    Object.entries(journeyData).forEach(([respondent, journey]: [string, any]) => {
+      const pathSteps: string[] = []
+      
+      currentColumnOrder.forEach((col) => {
+        let value = ''
+        switch(col.category) {
+          case 'respondent': value = journey[0]; break
+          case 'cafe': value = journey[1]; break
+          case 'location': value = journey[2]; break
+          case 'coffee': value = journey[3]; break
+          case 'dessert': value = journey[4]; break
+        }
+        if (value) {
+          pathSteps.push(value)
+        }
+      })
+      
+      const pathKey = pathSteps.join(' → ')
+      if (!journeyPaths[pathKey]) {
+        journeyPaths[pathKey] = { count: 0, respondents: [] }
+      }
+      journeyPaths[pathKey].count++
+      journeyPaths[pathKey].respondents.push(respondent)
+    })
+    
+    // Sort by frequency and calculate percentages
+    const sortedPaths = Object.entries(journeyPaths)
+      .map(([path, data]) => ({
+        path,
+        count: data.count,
+        respondents: data.respondents,
+        percentage: ((data.count / totalJourneys) * 100).toFixed(1)
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 4) // Top 4 paths
+    
+    return {
+      totalJourneys,
+      paths: sortedPaths,
+      startingPoint: currentColumnOrder[0]?.title || 'Survey Start'
+    }
+  }
+
   // Get reordered data
   const reorderedData = reorderSankeyData(comprehensiveSurveyFlow, columnOrder)
+  
+  // Calculate current journey paths
+  const journeyAnalysis = calculateJourneyPaths(comprehensiveSurveyFlow, columnOrder)
 
   return (
     <ComponentContainerCard
@@ -747,6 +801,16 @@ const ComprehensiveSurveyFlow = () => {
                 <i className="bi bi-info-circle me-1"></i>
                 Use the arrow buttons to reorder questions, drag the blue headers, OR click the ⋮⋮ handles to open the position selector modal.
               </small>
+            </div>
+            
+            <div className="text-center mt-3">
+              <button 
+                className="btn btn-outline-primary btn-sm"
+                onClick={() => setShowJourneys(true)}
+              >
+                <i className="bi bi-diagram-3 me-1"></i>
+                Explore Journeys
+              </button>
             </div>
           </div>
         </div>
@@ -915,6 +979,104 @@ const ComprehensiveSurveyFlow = () => {
                       Apply Changes
                     </button>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Journeys Modal */}
+      {showJourneys && (
+        <div className="journeys-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1050
+        }}>
+          <div className="card shadow-lg" style={{ width: '900px', maxHeight: '90vh', overflow: 'auto' }}>
+            <div className="card-header bg-white border-bottom">
+              <div className="d-flex justify-content-between align-items-center">
+                <h4 className="mb-0 fw-bold">User Journeys</h4>
+                <button 
+                  className="btn-close"
+                  onClick={() => setShowJourneys(false)}
+                  aria-label="Close"
+                ></button>
+              </div>
+            </div>
+            <div className="card-body p-4">
+              <div className="mb-4">
+                <p className="text-muted mb-2">
+                  Starting with <strong>{journeyAnalysis.startingPoint}</strong>
+                </p>
+                <p className="text-muted">
+                  Showing <strong>top {journeyAnalysis.paths.length} paths</strong> taken <strong>{journeyAnalysis.totalJourneys} times</strong> sorted by frequency
+                </p>
+                <div className="d-flex justify-content-end">
+                  <button className="btn btn-outline-primary btn-sm">
+                    <i className="bi bi-diagram-3 me-1"></i>
+                    Explore Journeys
+                  </button>
+                </div>
+              </div>
+
+              <div className="journey-paths">
+                {journeyAnalysis.paths.map((pathData, index) => {
+                  const steps = pathData.path.split(' → ')
+                  return (
+                    <div key={index} className="journey-row mb-4 p-3 border rounded">
+                      <div className="d-flex align-items-center mb-3">
+                        <div className="journey-percentage me-4">
+                          <div className="h4 mb-0 text-primary fw-bold">{pathData.percentage}%</div>
+                          <div className="small text-muted">{pathData.count} times</div>
+                        </div>
+                        
+                        <div className="journey-flow flex-grow-1">
+                          <div className="d-flex align-items-center flex-wrap">
+                            {steps.map((step, stepIndex) => (
+                              <div key={stepIndex} className="d-flex align-items-center">
+                                <div 
+                                  className="journey-step px-3 py-2 rounded me-2"
+                                  style={{
+                                    backgroundColor: `hsl(${(stepIndex * 60) % 360}, 70%, 85%)`,
+                                    border: `1px solid hsl(${(stepIndex * 60) % 360}, 70%, 70%)`,
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500'
+                                  }}
+                                >
+                                  {step}
+                                </div>
+                                {stepIndex < steps.length - 1 && (
+                                  <i className="bi bi-arrow-right text-muted me-2"></i>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="journey-respondents">
+                        <small className="text-muted">
+                          <strong>Respondents:</strong> {pathData.respondents.join(', ')}
+                        </small>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              <div className="mt-4 pt-3 border-top">
+                <div className="text-center">
+                  <small className="text-muted">
+                    Journey paths are calculated based on the current column order: <strong>{reorderedData.orderString}</strong>
+                  </small>
                 </div>
               </div>
             </div>

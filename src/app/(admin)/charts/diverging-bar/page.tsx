@@ -15,3 +15,4 @@ const DivergingBarCharts = () => {
 }
 
 export default DivergingBarCharts
+

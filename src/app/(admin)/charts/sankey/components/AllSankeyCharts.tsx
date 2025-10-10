@@ -124,10 +124,9 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
         const category = Object.keys(categoryToPosition).find(key => 
           categoryToPosition[key as keyof typeof categoryToPosition] === header.position
         )
-        
+
         if (category && columnCenters.has(category)) {
           const centerX = columnCenters.get(category)
-          
           // Main question title only (no subtitle)
           g.append('text')
             .attr('x', centerX) // Center on column
@@ -217,13 +216,13 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
     // --- CONNECTION TRACING (30% opacity line) ---
     if (selectedRespondent && data.journeys && data.journeys[selectedRespondent]) {
       const respondentColor = respondentColors[selectedRespondent]
-      
+
       if (respondentColor) {
         // Find the actual links for this respondent's journey
         const journeyLinks = graph.links.filter((link: any) => 
           link.respondent === selectedRespondent
         )
-        
+
         // Draw tracing lines using the same link generator
         journeyLinks.forEach((link: any) => {
           // Draw the tracing line following the exact Sankey curve
@@ -321,6 +320,15 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
 const ComprehensiveSurveyFlow = () => {
   const [selectedRespondent, setSelectedRespondent] = useState<string | null>(null)
   
+  // Column order state - default order
+  const [columnOrder, setColumnOrder] = useState([
+    { id: 'respondent', title: 'Who are you?', category: 'respondent' },
+    { id: 'cafe', title: 'Which Cafe would you like to go?', category: 'cafe' },
+    { id: 'location', title: 'Please verify your location', category: 'location' },
+    { id: 'coffee', title: 'Please select your favorite coffee', category: 'coffee' },
+    { id: 'dessert', title: 'Would you like dessert?', category: 'dessert' }
+  ])
+  
   const respondentColors = [
     { name: '조남철', color: '#e41a1c' },
     { name: '한동주', color: '#377eb8' },
@@ -332,14 +340,208 @@ const ComprehensiveSurveyFlow = () => {
     { name: '하재훈', color: '#f781bf' }
   ]
 
+  // Function to reorder data based on column order
+  const reorderSankeyData = (originalData: any, newColumnOrder: any[]) => {
+    // Create a visual indicator of the new order in the title
+    const orderString = newColumnOrder.map(col => {
+      switch(col.category) {
+        case 'respondent': return 'Who'
+        case 'cafe': return 'Cafe'
+        case 'location': return 'Location'
+        case 'coffee': return 'Coffee'
+        case 'dessert': return 'Dessert'
+        default: return col.category
+      }
+    }).join(' → ')
+
+    // Update question headers to match new order
+    const reorderedHeaders = newColumnOrder.map((col, index) => ({
+      title: col.title,
+      subtitle: col.category,
+      position: index
+    }))
+
+    // Rebuild the Sankey data structure based on new column order
+    // This is a complex transformation that rebuilds nodes and links
+    const journeyData = originalData.journeys
+    const newNodes: any[] = []
+    const newLinks: any[] = []
+    
+    // Create nodes for each column in the new order
+    const nodesByCategory: { [key: string]: Set<string> } = {}
+    
+    // First pass: collect all unique values for each category
+    Object.values(journeyData).forEach((journey: any) => {
+      newColumnOrder.forEach((col) => {
+        if (!nodesByCategory[col.category]) {
+          nodesByCategory[col.category] = new Set()
+        }
+        
+        // Map journey array positions to categories
+        let journeyValue = ''
+        switch(col.category) {
+          case 'respondent': journeyValue = journey[0]; break
+          case 'cafe': journeyValue = journey[1]; break
+          case 'location': journeyValue = journey[2]; break
+          case 'coffee': journeyValue = journey[3]; break
+          case 'dessert': journeyValue = journey[4]; break
+        }
+        
+        if (journeyValue) {
+          nodesByCategory[col.category].add(journeyValue)
+        }
+      })
+    })
+
+    // Create nodes array
+    newColumnOrder.forEach((col) => {
+      if (nodesByCategory[col.category]) {
+        nodesByCategory[col.category].forEach(value => {
+          newNodes.push({
+            id: value,
+            category: col.category
+          })
+        })
+      }
+    })
+
+    // Create links based on new column order
+    const linkCounts: { [key: string]: number } = {}
+    
+    Object.entries(journeyData).forEach(([respondent, journey]: [string, any]) => {
+      for (let i = 0; i < newColumnOrder.length - 1; i++) {
+        const currentCol = newColumnOrder[i]
+        const nextCol = newColumnOrder[i + 1]
+        
+        let sourceValue = ''
+        let targetValue = ''
+        
+        // Map categories to journey positions
+        switch(currentCol.category) {
+          case 'respondent': sourceValue = journey[0]; break
+          case 'cafe': sourceValue = journey[1]; break
+          case 'location': sourceValue = journey[2]; break
+          case 'coffee': sourceValue = journey[3]; break
+          case 'dessert': sourceValue = journey[4]; break
+        }
+        
+        switch(nextCol.category) {
+          case 'respondent': targetValue = journey[0]; break
+          case 'cafe': targetValue = journey[1]; break
+          case 'location': targetValue = journey[2]; break
+          case 'coffee': targetValue = journey[3]; break
+          case 'dessert': targetValue = journey[4]; break
+        }
+        
+        if (sourceValue && targetValue) {
+          const linkKey = `${sourceValue}->${targetValue}`
+          linkCounts[linkKey] = (linkCounts[linkKey] || 0) + 1
+          
+          // Add individual link for respondent tracking
+          newLinks.push({
+            source: sourceValue,
+            target: targetValue,
+            value: 1,
+            respondent: respondent
+          })
+        }
+      }
+    })
+
+    return {
+      nodes: newNodes,
+      links: newLinks,
+      journeys: journeyData,
+      questionHeaders: reorderedHeaders,
+      orderString: orderString
+    }
+  }
+
+  // Function to move column up
+  const moveColumnUp = (index: number) => {
+    if (index > 0) {
+      const newOrder = [...columnOrder]
+      const temp = newOrder[index]
+      newOrder[index] = newOrder[index - 1]
+      newOrder[index - 1] = temp
+      setColumnOrder(newOrder)
+    }
+  }
+
+  // Function to move column down
+  const moveColumnDown = (index: number) => {
+    if (index < columnOrder.length - 1) {
+      const newOrder = [...columnOrder]
+      const temp = newOrder[index]
+      newOrder[index] = newOrder[index + 1]
+      newOrder[index + 1] = temp
+      setColumnOrder(newOrder)
+    }
+  }
+
+  // Get reordered data
+  const reorderedData = reorderSankeyData(comprehensiveSurveyFlow, columnOrder)
+
   return (
     <ComponentContainerCard
       id="comprehensive-survey-flow"
-      title="Complete Survey Flow: All 5 Questions Connected"
-      description="Traditional Sankey diagram showing the complete journey from respondents through all survey questions: Who → Cafe → Location → Coffee → Dessert Rating"
+      title={`Complete Survey Flow: ${reorderedData.orderString}`}
+      description="Traditional Sankey diagram showing the complete journey from respondents through all survey questions. Use the controls above to reorder the questions and see how the flow changes."
     >
+      {/* Column Reordering Controls */}
+      <div className="mb-4">
+        <div className="card border-0 shadow-sm">
+          <div className="card-header bg-primary text-white">
+            <h6 className="mb-0 fw-semibold text-center">
+              <i className="bi bi-arrows-move me-2"></i>
+              Question Order Controls
+            </h6>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              {columnOrder.map((column, index) => (
+                <div key={column.id} className="col-md-2 col-sm-4 col-6 mb-2">
+                  <div className="card border h-100">
+                    <div className="card-body p-2 text-center">
+                      <div className="small fw-medium mb-1">Position {index + 1}</div>
+                      <div className="small text-muted mb-2" style={{ fontSize: '0.75rem' }}>
+                        {column.title.length > 25 ? column.title.substring(0, 25) + '...' : column.title}
+                      </div>
+                      <div className="btn-group-vertical" role="group">
+                        <button 
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => moveColumnUp(index)}
+                          disabled={index === 0}
+                          title="Move Up"
+                        >
+                          <i className="bi bi-arrow-up"></i>
+                        </button>
+                        <button 
+                          className="btn btn-outline-primary btn-sm"
+                          onClick={() => moveColumnDown(index)}
+                          disabled={index === columnOrder.length - 1}
+                          title="Move Down"
+                        >
+                          <i className="bi bi-arrow-down"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-2">
+              <small className="text-muted">
+                <i className="bi bi-info-circle me-1"></i>
+                Use the arrow buttons to reorder the survey questions. The Sankey diagram will update automatically.
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <SankeyChart 
-        data={comprehensiveSurveyFlow} 
+        data={reorderedData} 
         width={1300} 
         height={900} 
         selectedRespondent={selectedRespondent}

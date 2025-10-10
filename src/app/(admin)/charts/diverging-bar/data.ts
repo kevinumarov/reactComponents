@@ -132,3 +132,4 @@ export const satisfactionColors = {
   neutral: '#F0F0F0',
   positive: ['#32CD32', '#228B22']
 }
+

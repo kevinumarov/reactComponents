@@ -37,7 +37,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
     d3.select(svgRef.current).selectAll('*').remove()
 
     const svg = d3.select(svgRef.current)
-    const margin = { top: 60, right: 20, bottom: 20, left: 20 } // Adequate top margin for question headers only
+    const margin = { top: 80, right: 20, bottom: 20, left: 20 } // Increased top margin for draggable headers
     const chartWidth = width - margin.left - margin.right
     const chartHeight = height - margin.top - margin.bottom
 
@@ -138,15 +138,15 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Background rectangle for better drag target
           const headerBg = headerGroup.append('rect')
-            .attr('x', -60)
-            .attr('y', -15)
-            .attr('width', 120)
-            .attr('height', 25)
-            .attr('rx', 4)
+            .attr('x', -80)
+            .attr('y', -20)
+            .attr('width', 160)
+            .attr('height', 35)
+            .attr('rx', 6)
             .style('fill', 'rgba(59, 130, 246, 0.1)')
             .style('stroke', 'rgba(59, 130, 246, 0.3)')
             .style('stroke-width', 1)
-            .style('opacity', onColumnReorder ? 0.8 : 0)
+            .style('opacity', onColumnReorder ? 0.9 : 0)
           
           // Main question title
           headerGroup.append('text')
@@ -161,44 +161,107 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
           
           // Add drag behavior if callback is provided
           if (onColumnReorder && columnOrder) {
+            let isDragging = false
+            
             const drag = d3.drag<SVGGElement, unknown>()
               .on('start', function() {
+                isDragging = true
                 d3.select(this).style('cursor', 'grabbing')
-                headerBg.style('opacity', 1).style('fill', 'rgba(59, 130, 246, 0.2)')
+                headerBg.style('opacity', 1).style('fill', 'rgba(59, 130, 246, 0.3)')
+                
+                // Add drop zone indicators
+                g.selectAll('.drop-zone').remove()
+                const currentIndex = columnOrder.findIndex(col => col.category === category)
+                
+                // Create drop zones between columns
+                columnOrder.forEach((col, index) => {
+                  if (index !== currentIndex) {
+                    const colCategory = Object.keys(categoryToPosition).find(key => 
+                      categoryToPosition[key as keyof typeof categoryToPosition] === col.position
+                    )
+                    if (colCategory && columnCenters.has(colCategory)) {
+                      const colCenterX = columnCenters.get(colCategory)
+                      
+                      // Add drop zone indicator
+                      g.append('rect')
+                        .attr('class', 'drop-zone')
+                        .attr('x', colCenterX - 80)
+                        .attr('y', -45)
+                        .attr('width', 160)
+                        .attr('height', 40)
+                        .attr('rx', 8)
+                        .style('fill', 'rgba(34, 197, 94, 0.2)')
+                        .style('stroke', 'rgba(34, 197, 94, 0.5)')
+                        .style('stroke-width', 2)
+                        .style('stroke-dasharray', '5,5')
+                        .style('opacity', 0.7)
+                    }
+                  }
+                })
               })
               .on('drag', function(event) {
+                if (!isDragging) return
+                
                 // Visual feedback during drag
-                d3.select(this).attr('transform', `translate(${centerX + event.x}, ${-25 + event.y})`)
-                headerBg.style('fill', 'rgba(59, 130, 246, 0.3)')
+                d3.select(this).attr('transform', `translate(${centerX + event.x}, ${-25})`)
+                headerBg.style('fill', 'rgba(59, 130, 246, 0.4)')
+                
+                // Highlight potential drop zones based on current position
+                const draggedX = centerX + event.x
+                g.selectAll('.drop-zone')
+                  .style('opacity', function() {
+                    const rect = d3.select(this)
+                    const zoneX = parseFloat(rect.attr('x')) + parseFloat(rect.attr('width')) / 2
+                    const distance = Math.abs(draggedX - zoneX)
+                    return distance < 100 ? 1 : 0.3
+                  })
               })
               .on('end', function(event) {
+                isDragging = false
+                
+                // Remove drop zones
+                g.selectAll('.drop-zone').remove()
+                
                 // Reset visual state
                 d3.select(this)
                   .style('cursor', 'grab')
                   .attr('transform', `translate(${centerX}, -25)`)
                 headerBg.style('opacity', 0.8).style('fill', 'rgba(59, 130, 246, 0.1)')
                 
-                // Determine new position based on drag distance
+                // Determine new position based on final drag position
                 const dragDistance = event.x
-                const threshold = 100 // Minimum drag distance to trigger reorder
+                const threshold = 50 // Reduced threshold for better responsiveness
                 
                 if (Math.abs(dragDistance) > threshold) {
                   const currentIndex = columnOrder.findIndex(col => col.category === category)
-                  let newIndex = currentIndex
+                  const draggedX = centerX + dragDistance
                   
-                  if (dragDistance > 0 && currentIndex < columnOrder.length - 1) {
-                    // Dragged right - move to next position
-                    newIndex = currentIndex + 1
-                  } else if (dragDistance < 0 && currentIndex > 0) {
-                    // Dragged left - move to previous position
-                    newIndex = currentIndex - 1
-                  }
+                  // Find the closest column position
+                  let closestIndex = currentIndex
+                  let minDistance = Infinity
                   
-                  if (newIndex !== currentIndex) {
+                  columnOrder.forEach((col, index) => {
+                    if (index !== currentIndex) {
+                      const colCategory = Object.keys(categoryToPosition).find(key => 
+                        categoryToPosition[key as keyof typeof categoryToPosition] === col.position
+                      )
+                      if (colCategory && columnCenters.has(colCategory)) {
+                        const colCenterX = columnCenters.get(colCategory)
+                        const distance = Math.abs(draggedX - colCenterX)
+                        
+                        if (distance < minDistance && distance < 150) {
+                          minDistance = distance
+                          closestIndex = index
+                        }
+                      }
+                    }
+                  })
+                  
+                  if (closestIndex !== currentIndex) {
                     // Create new order array
                     const newOrder = [...columnOrder]
                     const [movedItem] = newOrder.splice(currentIndex, 1)
-                    newOrder.splice(newIndex, 0, movedItem)
+                    newOrder.splice(closestIndex, 0, movedItem)
                     
                     // Call the reorder callback
                     onColumnReorder(newOrder)
@@ -210,13 +273,23 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
             
             // Add visual indicator for draggable headers
             headerGroup.append('text')
-              .attr('x', 65)
+              .attr('x', 70)
               .attr('y', 0)
               .attr('text-anchor', 'middle')
-              .style('font-size', '10px')
+              .style('font-size', '12px')
               .style('fill', '#6b7280')
               .style('pointer-events', 'none')
               .text('⋮⋮')
+            
+            // Add drag instruction text
+            headerGroup.append('text')
+              .attr('x', 0)
+              .attr('y', 15)
+              .attr('text-anchor', 'middle')
+              .style('font-size', '8px')
+              .style('fill', '#9ca3af')
+              .style('pointer-events', 'none')
+              .text('Drag to reorder')
           }
         }
       })
@@ -615,7 +688,7 @@ const ComprehensiveSurveyFlow = () => {
             <div className="text-center mt-2">
               <small className="text-muted">
                 <i className="bi bi-info-circle me-1"></i>
-                Use the arrow buttons to reorder questions OR drag the question headers directly in the diagram below.
+                Use the arrow buttons to reorder questions OR drag the blue question headers directly in the diagram below. Green drop zones will appear when dragging.
               </small>
             </div>
           </div>

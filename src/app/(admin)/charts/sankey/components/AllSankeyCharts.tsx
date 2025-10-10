@@ -13,9 +13,10 @@ interface SankeyChartProps {
   onRespondentClick?: (respondent: string | null) => void
   onColumnReorder?: (newOrder: any[]) => void
   columnOrder?: any[]
+  onPositionSelectorOpen?: () => void
 }
 
-const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRespondentClick, onColumnReorder, columnOrder }: SankeyChartProps) => {
+const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRespondentClick, onColumnReorder, columnOrder, onPositionSelectorOpen }: SankeyChartProps) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Respondent → Color map
@@ -271,8 +272,36 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
             
             headerGroup.call(drag)
             
-            // Add visual indicator for draggable headers
-            headerGroup.append('text')
+            // Add clickable visual indicator for draggable headers
+            const dragHandle = headerGroup.append('g')
+              .attr('class', 'drag-handle')
+              .style('cursor', 'pointer')
+            
+            // Background for better click target
+            dragHandle.append('rect')
+              .attr('x', 60)
+              .attr('y', -10)
+              .attr('width', 20)
+              .attr('height', 20)
+              .attr('rx', 3)
+              .style('fill', 'rgba(107, 114, 128, 0.1)')
+              .style('stroke', 'rgba(107, 114, 128, 0.3)')
+              .style('stroke-width', 1)
+              .on('mouseover', function() {
+                d3.select(this).style('fill', 'rgba(107, 114, 128, 0.2)')
+              })
+              .on('mouseout', function() {
+                d3.select(this).style('fill', 'rgba(107, 114, 128, 0.1)')
+              })
+              .on('click', function(event) {
+                event.stopPropagation()
+                if (onPositionSelectorOpen) {
+                  onPositionSelectorOpen()
+                }
+              })
+            
+            // Drag handle icon
+            dragHandle.append('text')
               .attr('x', 70)
               .attr('y', 0)
               .attr('text-anchor', 'middle')
@@ -281,7 +310,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
               .style('pointer-events', 'none')
               .text('⋮⋮')
             
-            // Add drag instruction text
+            // Add instruction text
             headerGroup.append('text')
               .attr('x', 0)
               .attr('y', 15)
@@ -289,7 +318,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
               .style('font-size', '8px')
               .style('fill', '#9ca3af')
               .style('pointer-events', 'none')
-              .text('Drag to reorder')
+              .text('Drag or click ⋮⋮')
           }
         }
       })
@@ -474,6 +503,8 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
 
 const ComprehensiveSurveyFlow = () => {
   const [selectedRespondent, setSelectedRespondent] = useState<string | null>(null)
+  const [showPositionSelector, setShowPositionSelector] = useState(false)
+  const [tempColumnOrder, setTempColumnOrder] = useState<any[]>([])
   
   // Column order state - default order
   const [columnOrder, setColumnOrder] = useState([
@@ -634,6 +665,35 @@ const ComprehensiveSurveyFlow = () => {
     }
   }
 
+  // Functions for position selector
+  const openPositionSelector = () => {
+    setTempColumnOrder([...columnOrder])
+    setShowPositionSelector(true)
+  }
+
+  const updateTempPosition = (columnId: string, newPosition: number) => {
+    const newOrder = [...tempColumnOrder]
+    const columnIndex = newOrder.findIndex(col => col.id === columnId)
+    
+    if (columnIndex !== -1 && newPosition >= 1 && newPosition <= newOrder.length) {
+      // Remove the column from its current position
+      const [movedColumn] = newOrder.splice(columnIndex, 1)
+      // Insert it at the new position (subtract 1 for 0-based indexing)
+      newOrder.splice(newPosition - 1, 0, movedColumn)
+      setTempColumnOrder(newOrder)
+    }
+  }
+
+  const applyPositionChanges = () => {
+    setColumnOrder([...tempColumnOrder])
+    setShowPositionSelector(false)
+  }
+
+  const cancelPositionChanges = () => {
+    setTempColumnOrder([])
+    setShowPositionSelector(false)
+  }
+
   // Get reordered data
   const reorderedData = reorderSankeyData(comprehensiveSurveyFlow, columnOrder)
 
@@ -688,7 +748,7 @@ const ComprehensiveSurveyFlow = () => {
             <div className="text-center mt-2">
               <small className="text-muted">
                 <i className="bi bi-info-circle me-1"></i>
-                Use the arrow buttons to reorder questions OR drag the blue question headers directly in the diagram below. Green drop zones will appear when dragging.
+                Use the arrow buttons to reorder questions, drag the blue headers, OR click the ⋮⋮ handles to open the position selector modal.
               </small>
             </div>
           </div>
@@ -703,6 +763,7 @@ const ComprehensiveSurveyFlow = () => {
         onRespondentClick={setSelectedRespondent}
         onColumnReorder={setColumnOrder}
         columnOrder={columnOrder}
+        onPositionSelectorOpen={openPositionSelector}
       />
       
       {/* Color Legend for Respondents */}
@@ -781,6 +842,88 @@ const ComprehensiveSurveyFlow = () => {
           <em>When selected, a 30% opacity tracing line shows their complete connection path.</em>
         </div>
       </div>
+
+      {/* Position Selector Modal */}
+      {showPositionSelector && (
+        <div className="position-selector-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1050
+        }}>
+          <div className="card shadow-lg" style={{ width: '500px', maxHeight: '80vh', overflow: 'auto' }}>
+            <div className="card-header bg-primary text-white">
+              <h5 className="mb-0">
+                <i className="bi bi-list-ol me-2"></i>
+                Set Question Order
+              </h5>
+            </div>
+            <div className="card-body">
+              <p className="text-muted mb-4">
+                Set the position number for each question. Position 1 will be leftmost, position 5 will be rightmost.
+              </p>
+              
+              <div className="row g-3">
+                {tempColumnOrder.map((column, index) => (
+                  <div key={column.id} className="col-12">
+                    <div className="card border">
+                      <div className="card-body p-3">
+                        <div className="row align-items-center">
+                          <div className="col-8">
+                            <h6 className="mb-1">{column.title}</h6>
+                            <small className="text-muted">Current position: {index + 1}</small>
+                          </div>
+                          <div className="col-4">
+                            <label className="form-label small">New Position:</label>
+                            <select 
+                              className="form-select form-select-sm"
+                              value={index + 1}
+                              onChange={(e) => updateTempPosition(column.id, parseInt(e.target.value))}
+                            >
+                              {[1, 2, 3, 4, 5].map(pos => (
+                                <option key={pos} value={pos}>Position {pos}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-4 pt-3 border-top">
+                <div className="row">
+                  <div className="col-6">
+                    <button 
+                      className="btn btn-secondary w-100"
+                      onClick={cancelPositionChanges}
+                    >
+                      <i className="bi bi-x-circle me-1"></i>
+                      Cancel
+                    </button>
+                  </div>
+                  <div className="col-6">
+                    <button 
+                      className="btn btn-primary w-100"
+                      onClick={applyPositionChanges}
+                    >
+                      <i className="bi bi-check-circle me-1"></i>
+                      Apply Changes
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </ComponentContainerCard>
   )
 }

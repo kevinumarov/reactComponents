@@ -113,20 +113,22 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
         }
       })
 
-      // Map categories to positions
-      const categoryToPosition = {
-        'respondent': 0,
-        'cafe': 1,
-        'location': 2,
-        'coffee': 3,
-        'dessert': 4
-      }
+      // Create dynamic category to position mapping based on question headers
+      const categoryToPosition: { [key: string]: number } = {}
+      data.questionHeaders.forEach((header: any) => {
+        // Find the category that matches this header position
+        if (columnOrder) {
+          const columnAtPosition = columnOrder[header.position]
+          if (columnAtPosition) {
+            categoryToPosition[columnAtPosition.category] = header.position
+          }
+        }
+      })
 
       // Draw draggable question headers
       data.questionHeaders.forEach((header: any) => {
-        const category = Object.keys(categoryToPosition).find(key => 
-          categoryToPosition[key as keyof typeof categoryToPosition] === header.position
-        )
+        // Find the category for this header position
+        const category = columnOrder ? columnOrder[header.position]?.category : null
         
         if (category && columnCenters.has(category)) {
           const centerX = columnCenters.get(category)
@@ -177,9 +179,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
                 // Create drop zones between columns
                 columnOrder.forEach((col, index) => {
                   if (index !== currentIndex) {
-                    const colCategory = Object.keys(categoryToPosition).find(key => 
-                      categoryToPosition[key as keyof typeof categoryToPosition] === col.position
-                    )
+                    const colCategory = col.category
                     if (colCategory && columnCenters.has(colCategory)) {
                       const colCenterX = columnCenters.get(colCategory)
                       
@@ -243,9 +243,7 @@ const SankeyChart = ({ data, width = 900, height = 500, selectedRespondent, onRe
                   
                   columnOrder.forEach((col, index) => {
                     if (index !== currentIndex) {
-                      const colCategory = Object.keys(categoryToPosition).find(key => 
-                        categoryToPosition[key as keyof typeof categoryToPosition] === col.position
-                      )
+                      const colCategory = col.category
                       if (colCategory && columnCenters.has(colCategory)) {
                         const colCenterX = columnCenters.get(colCategory)
                         const distance = Math.abs(draggedX - colCenterX)
@@ -540,7 +538,7 @@ const ComprehensiveSurveyFlow = () => {
       }
     }).join(' → ')
 
-    // Update question headers to match new order
+    // Update question headers to match new order with correct positions
     const reorderedHeaders = newColumnOrder.map((col, index) => ({
       title: col.title,
       subtitle: col.category,
@@ -548,22 +546,27 @@ const ComprehensiveSurveyFlow = () => {
     }))
 
     // Rebuild the Sankey data structure based on new column order
-    // This is a complex transformation that rebuilds nodes and links
     const journeyData = originalData.journeys
     const newNodes: any[] = []
     const newLinks: any[] = []
     
-    // Create nodes for each column in the new order
-    const nodesByCategory: { [key: string]: Set<string> } = {}
+    // Create a mapping from category to new position
+    const categoryToNewPosition: { [key: string]: number } = {}
+    newColumnOrder.forEach((col, index) => {
+      categoryToNewPosition[col.category] = index
+    })
+    
+    // Collect all unique values for each category in the new order
+    const nodesByNewPosition: { [key: number]: Set<string> } = {}
+    
+    // Initialize sets for each position
+    newColumnOrder.forEach((_, index) => {
+      nodesByNewPosition[index] = new Set()
+    })
     
     // First pass: collect all unique values for each category
     Object.values(journeyData).forEach((journey: any) => {
-      newColumnOrder.forEach((col) => {
-        if (!nodesByCategory[col.category]) {
-          nodesByCategory[col.category] = new Set()
-        }
-        
-        // Map journey array positions to categories
+      newColumnOrder.forEach((col, newPosition) => {
         let journeyValue = ''
         switch(col.category) {
           case 'respondent': journeyValue = journey[0]; break
@@ -574,26 +577,23 @@ const ComprehensiveSurveyFlow = () => {
         }
         
         if (journeyValue) {
-          nodesByCategory[col.category].add(journeyValue)
+          nodesByNewPosition[newPosition].add(journeyValue)
         }
       })
     })
 
-    // Create nodes array
-    newColumnOrder.forEach((col) => {
-      if (nodesByCategory[col.category]) {
-        nodesByCategory[col.category].forEach(value => {
-          newNodes.push({
-            id: value,
-            category: col.category
-          })
+    // Create nodes array with proper category assignment based on new positions
+    newColumnOrder.forEach((col, newPosition) => {
+      nodesByNewPosition[newPosition].forEach(value => {
+        newNodes.push({
+          id: value,
+          category: col.category, // Keep original category for identification
+          newPosition: newPosition // Add new position for layout
         })
-      }
+      })
     })
 
-    // Create links based on new column order
-    const linkCounts: { [key: string]: number } = {}
-    
+    // Create links based on new column order (adjacent positions only)
     Object.entries(journeyData).forEach(([respondent, journey]: [string, any]) => {
       for (let i = 0; i < newColumnOrder.length - 1; i++) {
         const currentCol = newColumnOrder[i]
@@ -602,7 +602,7 @@ const ComprehensiveSurveyFlow = () => {
         let sourceValue = ''
         let targetValue = ''
         
-        // Map categories to journey positions
+        // Get values for current and next positions
         switch(currentCol.category) {
           case 'respondent': sourceValue = journey[0]; break
           case 'cafe': sourceValue = journey[1]; break
@@ -619,10 +619,7 @@ const ComprehensiveSurveyFlow = () => {
           case 'dessert': targetValue = journey[4]; break
         }
         
-        if (sourceValue && targetValue) {
-          const linkKey = `${sourceValue}->${targetValue}`
-          linkCounts[linkKey] = (linkCounts[linkKey] || 0) + 1
-          
+        if (sourceValue && targetValue && sourceValue !== targetValue) {
           // Add individual link for respondent tracking
           newLinks.push({
             source: sourceValue,

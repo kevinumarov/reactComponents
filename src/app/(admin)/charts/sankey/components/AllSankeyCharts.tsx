@@ -505,6 +505,34 @@ const ComprehensiveSurveyFlow = () => {
   const [tempColumnOrder, setTempColumnOrder] = useState<any[]>([])
   const [showJourneys, setShowJourneys] = useState(false)
   
+  // Filter states
+  const [showFilters, setShowFilters] = useState(false)
+  const [questionOrderFilter, setQuestionOrderFilter] = useState('first_question')
+  const [conditionsFilter, setConditionsFilter] = useState('response_based')
+  const [selectedQuestions, setSelectedQuestions] = useState<string[]>([])
+  const [currentPage, setCurrentPage] = useState(1)
+  const [showExportDiagram, setShowExportDiagram] = useState(false)
+  const [showExportJourney, setShowExportJourney] = useState(false)
+  
+  // Mock questions data for the filter interface
+  const allQuestions = [
+    { id: 'q1', text: 'Where do you live?', selected: true },
+    { id: 'q2', text: 'Which university did you graduate?', selected: true },
+    { id: 'q3', text: 'Saving mental energy is far more efficient than physical one', selected: false },
+    { id: 'q4', text: 'What is your age group?', selected: true },
+    { id: 'q5', text: 'What is your profession', selected: false },
+    { id: 'q6', text: 'What is makes your day shine?', selected: false },
+    { id: 'q7', text: 'Which vitamins are better for sleep', selected: false },
+    { id: 'q8', text: 'Nearest Department Store around you', selected: true },
+    { id: 'q9', text: 'Cashback Bank', selected: true },
+    { id: 'q10', text: 'Please give your dietary advice to young students', selected: false }
+  ]
+  
+  const questionsPerPage = 10
+  const totalPages = Math.ceil(allQuestions.length / questionsPerPage)
+  const startIndex = (currentPage - 1) * questionsPerPage
+  const currentQuestions = allQuestions.slice(startIndex, startIndex + questionsPerPage)
+  
   // Column order state - default order
   const [columnOrder, setColumnOrder] = useState([
     { id: 'respondent', title: 'Who are you?', category: 'respondent' },
@@ -754,6 +782,156 @@ const ComprehensiveSurveyFlow = () => {
       title={`Complete Survey Flow: ${reorderedData.orderString}`}
       description="Interactive Sankey diagram showing the complete journey from respondents through all survey questions. Use the arrow controls above OR drag the question headers directly to reorder columns and see how the flow changes."
     >
+      {/* Filter Interface */}
+      <div className="mb-4">
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h5 className="mb-0">설문 분석 출력도</h5>
+          <div className="d-flex gap-2">
+            <button 
+              className="btn btn-outline-primary btn-sm"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <i className="bi bi-funnel me-1"></i>
+              필터링
+            </button>
+            <button 
+              className="btn btn-outline-success btn-sm"
+              onClick={() => setShowExportDiagram(true)}
+            >
+              <i className="bi bi-download me-1"></i>
+              내보내기
+            </button>
+          </div>
+        </div>
+
+        {showFilters && (
+          <div className="card border-0 shadow-sm mb-4">
+            <div className="card-header bg-light">
+              <h6 className="mb-0">분석 필터 선택하기</h6>
+            </div>
+            <div className="card-body">
+              <div className="row mb-4">
+                <div className="col-md-6">
+                  <label className="form-label fw-medium">Set order of the questions</label>
+                  <select 
+                    className="form-select"
+                    value={questionOrderFilter}
+                    onChange={(e) => setQuestionOrderFilter(e.target.value)}
+                  >
+                    <option value="first_question">Filter by first question</option>
+                    <option value="most_answered">Filter by Most answered question</option>
+                    <option value="least_answered">Filter by Least answered question</option>
+                    <option value="highest_completion">Filter by Highest completion rate</option>
+                    <option value="most_diverse">Filter by Most diverse responses</option>
+                    <option value="satisfaction_driver">Filter by Satisfaction driver</option>
+                    <option value="critical_business">Filter by Critical business question</option>
+                    <option value="custom_priority">Custom question priority</option>
+                  </select>
+                </div>
+                <div className="col-md-6">
+                  <label className="form-label fw-medium">Conditions</label>
+                  <select 
+                    className="form-select"
+                    value={conditionsFilter}
+                    onChange={(e) => setConditionsFilter(e.target.value)}
+                  >
+                    <option value="response_based">Response based</option>
+                    <option value="advanced_analytics">Advanced Analytics</option>
+                    <option value="behavioral_patterns">Behavioral Patterns</option>
+                    <option value="saved_segments">Saved Segments</option>
+                    <option value="time_based">Time-based</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label fw-medium">문항</label>
+                <div className="border rounded p-3" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                  {currentQuestions.map((question) => (
+                    <div key={question.id} className="form-check mb-2">
+                      <input 
+                        className="form-check-input" 
+                        type="checkbox" 
+                        id={question.id}
+                        checked={question.selected}
+                        onChange={(e) => {
+                          const questionId = question.id
+                          if (e.target.checked) {
+                            setSelectedQuestions([...selectedQuestions, questionId])
+                          } else {
+                            setSelectedQuestions(selectedQuestions.filter(id => id !== questionId))
+                          }
+                        }}
+                      />
+                      <label className="form-check-label" htmlFor={question.id}>
+                        {question.text}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Pagination */}
+                <div className="d-flex justify-content-between align-items-center mt-3">
+                  <small className="text-muted">
+                    Showing {startIndex + 1} of {allQuestions.length} questions
+                  </small>
+                  <nav>
+                    <ul className="pagination pagination-sm mb-0">
+                      <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                        <button 
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage - 1)}
+                          disabled={currentPage === 1}
+                        >
+                          ‹
+                        </button>
+                      </li>
+                      {[...Array(totalPages)].map((_, index) => (
+                        <li key={index + 1} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+                          <button 
+                            className="page-link"
+                            onClick={() => setCurrentPage(index + 1)}
+                          >
+                            {index + 1}
+                          </button>
+                        </li>
+                      ))}
+                      <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                        <button 
+                          className="page-link"
+                          onClick={() => setCurrentPage(currentPage + 1)}
+                          disabled={currentPage === totalPages}
+                        >
+                          ›
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-end gap-2">
+                <button 
+                  className="btn btn-outline-secondary"
+                  onClick={() => setShowFilters(false)}
+                >
+                  Clear
+                </button>
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // Apply filter logic here
+                    setShowFilters(false)
+                  }}
+                >
+                  Apply 5
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Column Reordering Controls */}
       <div className="mb-4">
         <div className="card border-0 shadow-sm">
@@ -805,11 +983,18 @@ const ComprehensiveSurveyFlow = () => {
             
             <div className="text-center mt-3">
               <button 
-                className="btn btn-outline-primary btn-sm"
+                className="btn btn-outline-primary btn-sm me-2"
                 onClick={() => setShowJourneys(true)}
               >
                 <i className="bi bi-diagram-3 me-1"></i>
                 Explore Journeys
+              </button>
+              <button 
+                className="btn btn-outline-success btn-sm"
+                onClick={() => setShowExportJourney(true)}
+              >
+                <i className="bi bi-download me-1"></i>
+                Export Journey
               </button>
             </div>
           </div>
@@ -1013,15 +1198,21 @@ const ComprehensiveSurveyFlow = () => {
             </div>
             <div className="card-body p-4">
               <div className="mb-4">
-                <p className="text-muted mb-2">
-                  Starting with <strong>{journeyAnalysis.startingPoint}</strong>
-                </p>
-                <p className="text-muted">
-                  Showing <strong>top {journeyAnalysis.paths.length} paths</strong> taken <strong>{journeyAnalysis.totalJourneys} times</strong> sorted by frequency
-                </p>
+                <div className="bg-light rounded p-3 mb-3">
+                  <h6 className="mb-2 text-primary">여정</h6>
+                  <p className="text-muted mb-2">
+                    Starting with <strong>게시 페이지 Page Viewed</strong>
+                  </p>
+                  <p className="text-muted mb-0">
+                    Showing <strong>top 4 paths</strong> taken <strong>31 times</strong> sorted by frequency
+                  </p>
+                </div>
                 <div className="d-flex justify-content-end">
-                  <button className="btn btn-outline-primary btn-sm">
-                    <i className="bi bi-diagram-3 me-1"></i>
+                  <button 
+                    className="btn btn-outline-primary btn-sm"
+                    onClick={() => setShowExportJourney(true)}
+                  >
+                    <i className="bi bi-download me-1"></i>
                     Explore Journeys
                   </button>
                 </div>
@@ -1031,33 +1222,47 @@ const ComprehensiveSurveyFlow = () => {
                 {journeyAnalysis.paths.map((pathData, index) => {
                   const steps = pathData.path.split(' → ')
                   return (
-                    <div key={index} className="journey-row mb-4 p-3 border rounded">
-                      <div className="d-flex align-items-center mb-3">
-                        <div className="journey-percentage me-4">
-                          <div className="h4 mb-0 text-primary fw-bold">{pathData.percentage}%</div>
-                          <div className="small text-muted">{pathData.count} times</div>
+                    <div key={index} className="journey-row mb-3">
+                      <div className="d-flex align-items-center">
+                        <div className="journey-percentage me-4 text-center">
+                          <div className="h5 mb-0 fw-bold" style={{ color: '#28a745' }}>{pathData.percentage}%</div>
                         </div>
                         
                         <div className="journey-flow flex-grow-1">
                           <div className="d-flex align-items-center flex-wrap">
-                            {steps.map((step, stepIndex) => (
-                              <div key={stepIndex} className="d-flex align-items-center">
-                                <div 
-                                  className="journey-step px-3 py-2 rounded me-2"
-                                  style={{
-                                    backgroundColor: `hsl(${(stepIndex * 60) % 360}, 70%, 85%)`,
-                                    border: `1px solid hsl(${(stepIndex * 60) % 360}, 70%, 70%)`,
-                                    fontSize: '0.875rem',
-                                    fontWeight: '500'
-                                  }}
-                                >
-                                  {step}
+                            {steps.map((step, stepIndex) => {
+                              // Define colors for each step type based on your design
+                              const getStepColor = (step: string) => {
+                                if (step.includes('Page Viewed') || step.includes('게시')) return '#90EE90' // Light green
+                                if (step.includes('Session Started') || step.includes('세션')) return '#87CEEB' // Light blue  
+                                if (step.includes('Pricing') || step.includes('가격')) return '#DDA0DD' // Light purple
+                                if (step.includes('Product') || step.includes('제품')) return '#F0E68C' // Light yellow
+                                if (step.includes('Comparison') || step.includes('비교')) return '#FFB6C1' // Light pink
+                                if (step.includes('Feature') || step.includes('기능')) return '#98FB98' // Pale green
+                                return '#E6E6FA' // Light lavender as default
+                              }
+                              
+                              return (
+                                <div key={stepIndex} className="d-flex align-items-center">
+                                  <div 
+                                    className="journey-step px-3 py-2 rounded me-2"
+                                    style={{
+                                      backgroundColor: getStepColor(step),
+                                      border: '1px solid #ddd',
+                                      fontSize: '0.8rem',
+                                      fontWeight: '500',
+                                      minWidth: '120px',
+                                      textAlign: 'center'
+                                    }}
+                                  >
+                                    {step}
+                                  </div>
+                                  {stepIndex < steps.length - 1 && (
+                                    <i className="bi bi-arrow-right text-primary me-2" style={{ fontSize: '1.2rem' }}></i>
+                                  )}
                                 </div>
-                                {stepIndex < steps.length - 1 && (
-                                  <i className="bi bi-arrow-right text-muted me-2"></i>
-                                )}
-                              </div>
-                            ))}
+                              )
+                            })}
                           </div>
                         </div>
                       </div>
@@ -1078,6 +1283,184 @@ const ComprehensiveSurveyFlow = () => {
                     Journey paths are calculated based on the current column order: <strong>{reorderedData.orderString}</strong>
                   </small>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Diagram Modal */}
+      {showExportDiagram && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1050
+        }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Export Diagram</h5>
+                <button 
+                  type="button" 
+                  className="btn-close"
+                  onClick={() => setShowExportDiagram(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-4">
+                    <h6>Export Format</h6>
+                    <div className="list-group">
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="exportFormat" defaultChecked />
+                        <div>
+                          <div className="fw-bold">PNG</div>
+                          <small className="text-muted">High quality image</small>
+                        </div>
+                      </label>
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="exportFormat" />
+                        <div>
+                          <div className="fw-bold">PDF</div>
+                          <small className="text-muted">High quality document</small>
+                        </div>
+                      </label>
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="exportFormat" />
+                        <div>
+                          <div className="fw-bold">JPG</div>
+                          <small className="text-muted">High quality image with broader dimensions</small>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-md-8">
+                    <h6>Preview</h6>
+                    <div className="border rounded p-3 bg-light" style={{ height: '300px' }}>
+                      <div className="d-flex align-items-center justify-content-center h-100">
+                        <div className="text-center">
+                          <i className="bi bi-diagram-3 display-4 text-muted"></i>
+                          <p className="text-muted mt-2">Sankey Diagram Preview</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={() => setShowExportDiagram(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // Export logic here
+                    setShowExportDiagram(false)
+                  }}
+                >
+                  Download
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Export Journey Modal */}
+      {showExportJourney && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1050
+        }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Export Journey</h5>
+                <button 
+                  type="button" 
+                  className="btn-close"
+                  onClick={() => setShowExportJourney(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-4">
+                    <h6>Export Format</h6>
+                    <div className="list-group">
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" defaultChecked />
+                        <div>
+                          <div className="fw-bold">PNG</div>
+                          <small className="text-muted">High quality image</small>
+                        </div>
+                      </label>
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" />
+                        <div>
+                          <div className="fw-bold">PDF</div>
+                          <small className="text-muted">High quality document</small>
+                        </div>
+                      </label>
+                      <label className="list-group-item">
+                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" />
+                        <div>
+                          <div className="fw-bold">JPG</div>
+                          <small className="text-muted">High quality image with broader dimensions</small>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                  <div className="col-md-8">
+                    <h6>Preview</h6>
+                    <div className="border rounded p-3 bg-light" style={{ height: '300px' }}>
+                      <div className="d-flex align-items-center justify-content-center h-100">
+                        <div className="text-center">
+                          <i className="bi bi-arrow-right-circle display-4 text-muted"></i>
+                          <p className="text-muted mt-2">Journey Analysis Preview</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary"
+                  onClick={() => setShowExportJourney(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    // Export logic here
+                    setShowExportJourney(false)
+                  }}
+                >
+                  Download
+                </button>
               </div>
             </div>
           </div>

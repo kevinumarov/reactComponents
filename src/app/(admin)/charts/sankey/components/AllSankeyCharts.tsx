@@ -667,27 +667,6 @@ const ComprehensiveSurveyFlow = () => {
     }
   }
 
-  // Function to move column up
-  const moveColumnUp = (index: number) => {
-    if (index > 0) {
-      const newOrder = [...columnOrder]
-      const temp = newOrder[index]
-      newOrder[index] = newOrder[index - 1]
-      newOrder[index - 1] = temp
-      setColumnOrder(newOrder)
-    }
-  }
-
-  // Function to move column down
-  const moveColumnDown = (index: number) => {
-    if (index < columnOrder.length - 1) {
-      const newOrder = [...columnOrder]
-      const temp = newOrder[index]
-      newOrder[index] = newOrder[index + 1]
-      newOrder[index + 1] = temp
-      setColumnOrder(newOrder)
-    }
-  }
 
   // Functions for position selector
   const openPositionSelector = () => {
@@ -1082,74 +1061,6 @@ const ComprehensiveSurveyFlow = () => {
         )}
       </div>
 
-      {/* Column Reordering Controls */}
-      <div className="mb-4">
-        <div className="card border-0 shadow-sm">
-          <div className="card-header bg-primary text-white">
-            <h6 className="mb-0 fw-semibold text-center">
-              <i className="bi bi-arrows-move me-2"></i>
-              Question Order Controls
-            </h6>
-          </div>
-          <div className="card-body">
-            <div className="row">
-              {columnOrder.map((column, index) => (
-                <div key={column.id} className="col-md-2 col-sm-4 col-6 mb-2">
-                  <div className="card border h-100">
-                    <div className="card-body p-2 text-center">
-                      <div className="small fw-medium mb-1">Position {index + 1}</div>
-                      <div className="small text-muted mb-2" style={{ fontSize: '0.75rem' }}>
-                        {column.title.length > 25 ? column.title.substring(0, 25) + '...' : column.title}
-                      </div>
-                      <div className="btn-group-vertical" role="group">
-                        <button 
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => moveColumnUp(index)}
-                          disabled={index === 0}
-                          title="Move Up"
-                        >
-                          <i className="bi bi-arrow-up"></i>
-                        </button>
-                        <button 
-                          className="btn btn-outline-primary btn-sm"
-                          onClick={() => moveColumnDown(index)}
-                          disabled={index === columnOrder.length - 1}
-                          title="Move Down"
-                        >
-                          <i className="bi bi-arrow-down"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="text-center mt-2">
-              <small className="text-muted">
-                <i className="bi bi-info-circle me-1"></i>
-                Use the arrow buttons to reorder questions, drag the blue headers, OR click the ⋮⋮ handles to open the position selector modal.
-              </small>
-            </div>
-            
-            <div className="text-center mt-3">
-              <button 
-                className="btn btn-outline-primary btn-sm me-2"
-                onClick={() => setShowJourneys(true)}
-              >
-                <i className="bi bi-diagram-3 me-1"></i>
-                Explore Journeys
-              </button>
-              <button 
-                className="btn btn-outline-success btn-sm"
-                onClick={() => setShowExportJourney(true)}
-              >
-                <i className="bi bi-download me-1"></i>
-                Export Journey
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div ref={sankeyRef}>
         <SankeyChart 
@@ -1162,6 +1073,24 @@ const ComprehensiveSurveyFlow = () => {
           columnOrder={columnOrder}
           onPositionSelectorOpen={openPositionSelector}
         />
+      </div>
+      
+      {/* Journey Controls */}
+      <div className="text-center mt-4 mb-4">
+        <button 
+          className="btn btn-outline-primary btn-sm me-2"
+          onClick={() => setShowJourneys(true)}
+        >
+          <i className="bi bi-diagram-3 me-1"></i>
+          Explore Journeys
+        </button>
+        <button 
+          className="btn btn-outline-success btn-sm"
+          onClick={() => setShowExportJourney(true)}
+        >
+          <i className="bi bi-download me-1"></i>
+          Export Journey
+        </button>
       </div>
       
       {/* Color Legend for Respondents */}

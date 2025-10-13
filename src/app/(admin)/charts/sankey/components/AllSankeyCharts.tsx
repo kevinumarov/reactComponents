@@ -1282,10 +1282,10 @@ const ComprehensiveSurveyFlow = () => {
                 <div className="bg-light rounded p-3 mb-3">
                   <h6 className="mb-2 text-primary">여정</h6>
                   <p className="text-muted mb-2">
-                    Starting with <strong>게시 페이지 Page Viewed</strong>
+                    Starting with <strong>{columnOrder[0]?.title || 'First Question'}</strong>
                   </p>
                   <p className="text-muted mb-0">
-                    Showing <strong>top 4 paths</strong> taken <strong>31 times</strong> sorted by frequency
+                    Showing <strong>top {journeyAnalysis.paths.length} paths</strong> taken <strong>{journeyAnalysis.totalJourneys} times</strong> sorted by frequency
                   </p>
                 </div>
                 <div className="d-flex justify-content-end">

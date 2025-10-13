@@ -504,6 +504,7 @@ const ComprehensiveSurveyFlow = () => {
   const [showPositionSelector, setShowPositionSelector] = useState(false)
   const [tempColumnOrder, setTempColumnOrder] = useState<any[]>([])
   const [showJourneys, setShowJourneys] = useState(false)
+  const sankeyRef = useRef<HTMLDivElement>(null)
   
   // Filter states
   const [showFilters, setShowFilters] = useState(false)
@@ -513,20 +514,17 @@ const ComprehensiveSurveyFlow = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [showExportDiagram, setShowExportDiagram] = useState(false)
   const [showExportJourney, setShowExportJourney] = useState(false)
+  const [selectedExportFormat, setSelectedExportFormat] = useState<'png' | 'pdf' | 'jpg'>('png')
+  const [selectedJourneyFormat, setSelectedJourneyFormat] = useState<'png' | 'pdf' | 'jpg'>('png')
   
-  // Mock questions data for the filter interface
-  const allQuestions = [
-    { id: 'q1', text: 'Where do you live?', selected: true },
-    { id: 'q2', text: 'Which university did you graduate?', selected: true },
-    { id: 'q3', text: 'Saving mental energy is far more efficient than physical one', selected: false },
-    { id: 'q4', text: 'What is your age group?', selected: true },
-    { id: 'q5', text: 'What is your profession', selected: false },
-    { id: 'q6', text: 'What is makes your day shine?', selected: false },
-    { id: 'q7', text: 'Which vitamins are better for sleep', selected: false },
-    { id: 'q8', text: 'Nearest Department Store around you', selected: true },
-    { id: 'q9', text: 'Cashback Bank', selected: true },
-    { id: 'q10', text: 'Please give your dietary advice to young students', selected: false }
-  ]
+  // Real survey questions from our data
+  const allQuestions = realSurveyData.map((questionData, index) => ({
+    id: `q${index + 1}`,
+    text: questionData.question,
+    selected: true, // All questions selected by default
+    responseCount: questionData.options.find(opt => opt.label === '전체')?.count || 0,
+    optionsCount: questionData.options.filter(opt => opt.label !== '전체').length
+  }))
   
   const questionsPerPage = 10
   const totalPages = Math.ceil(allQuestions.length / questionsPerPage)
@@ -776,6 +774,150 @@ const ComprehensiveSurveyFlow = () => {
   // Calculate current journey paths
   const journeyAnalysis = calculateJourneyPaths(comprehensiveSurveyFlow, columnOrder)
 
+  // Function to generate export preview
+  const generatePreview = (type: 'diagram' | 'journey') => {
+    if (type === 'diagram' && sankeyRef.current) {
+      // Create a mini version of the Sankey diagram for preview
+      return (
+        <div className="d-flex align-items-center justify-content-center h-100 bg-light rounded">
+          <div style={{ transform: 'scale(0.3)', transformOrigin: 'center' }}>
+            <svg width="400" height="200" viewBox="0 0 400 200">
+              {/* Simplified Sankey preview */}
+              <rect x="20" y="50" width="15" height="100" fill="#e41a1c" />
+              <rect x="120" y="30" width="15" height="60" fill="#377eb8" />
+              <rect x="120" y="110" width="15" height="60" fill="#4daf4a" />
+              <rect x="220" y="50" width="15" height="100" fill="#984ea3" />
+              <rect x="320" y="40" width="15" height="120" fill="#ff7f00" />
+              
+              {/* Flow paths */}
+              <path d="M35,100 Q77,80 120,60" fill="none" stroke="#e41a1c" strokeWidth="8" opacity="0.6" />
+              <path d="M35,100 Q77,120 120,140" fill="none" stroke="#e41a1c" strokeWidth="8" opacity="0.6" />
+              <path d="M135,60 Q177,70 220,100" fill="none" stroke="#377eb8" strokeWidth="6" opacity="0.6" />
+              <path d="M135,140 Q177,130 220,100" fill="none" stroke="#4daf4a" strokeWidth="6" opacity="0.6" />
+              <path d="M235,100 Q277,100 320,100" fill="none" stroke="#984ea3" strokeWidth="10" opacity="0.6" />
+              
+              {/* Labels */}
+              <text x="27" y="45" fontSize="8" fill="#666">Respondents</text>
+              <text x="127" y="25" fontSize="8" fill="#666">Cafe</text>
+              <text x="227" y="45" fontSize="8" fill="#666">Location</text>
+              <text x="327" y="35" fontSize="8" fill="#666">Coffee</text>
+            </svg>
+          </div>
+        </div>
+      )
+    } else if (type === 'journey') {
+      return (
+        <div className="d-flex align-items-center justify-content-center h-100 bg-light rounded p-3">
+          <div className="text-center">
+            <div className="d-flex align-items-center justify-content-center mb-2">
+              <div className="badge bg-success me-2">12.9%</div>
+              <div className="small bg-primary text-white px-2 py-1 rounded me-1">게시 페이지</div>
+              <i className="bi bi-arrow-right text-primary mx-1"></i>
+              <div className="small bg-info text-white px-2 py-1 rounded me-1">세션 시작</div>
+              <i className="bi bi-arrow-right text-primary mx-1"></i>
+              <div className="small bg-warning text-dark px-2 py-1 rounded">가격 비교</div>
+            </div>
+            <div className="d-flex align-items-center justify-content-center mb-2">
+              <div className="badge bg-success me-2">6.45%</div>
+              <div className="small bg-primary text-white px-2 py-1 rounded me-1">게시 페이지</div>
+              <i className="bi bi-arrow-right text-primary mx-1"></i>
+              <div className="small bg-secondary text-white px-2 py-1 rounded me-1">제품 탐색</div>
+              <i className="bi bi-arrow-right text-primary mx-1"></i>
+              <div className="small bg-danger text-white px-2 py-1 rounded">기능 비교</div>
+            </div>
+            <small className="text-muted">Journey Analysis Preview</small>
+          </div>
+        </div>
+      )
+    }
+    return (
+      <div className="d-flex align-items-center justify-content-center h-100">
+        <div className="text-center">
+          <i className="bi bi-diagram-3 display-4 text-muted"></i>
+          <p className="text-muted mt-2">Preview Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Export functionality
+  const exportDiagram = (format: 'png' | 'pdf' | 'jpg') => {
+    if (!sankeyRef.current) return
+    
+    // For now, we'll create a simple download link
+    // In a real implementation, you'd use libraries like html2canvas or jsPDF
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    
+    if (ctx) {
+      canvas.width = 1300
+      canvas.height = 900
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      // Add some text indicating this is a placeholder
+      ctx.fillStyle = '#333333'
+      ctx.font = '24px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText('Sankey Diagram Export', canvas.width / 2, canvas.height / 2)
+      ctx.font = '16px Arial'
+      ctx.fillText(`Format: ${format.toUpperCase()}`, canvas.width / 2, canvas.height / 2 + 40)
+      ctx.fillText('Real implementation would capture actual SVG', canvas.width / 2, canvas.height / 2 + 70)
+      
+      // Create download link
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `sankey-diagram.${format}`
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+        }
+      }, `image/${format}`)
+    }
+    
+    setShowExportDiagram(false)
+  }
+
+  const exportJourney = (format: 'png' | 'pdf' | 'jpg') => {
+    // Similar implementation for journey export
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    
+    if (ctx) {
+      canvas.width = 800
+      canvas.height = 600
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      ctx.fillStyle = '#333333'
+      ctx.font = '24px Arial'
+      ctx.textAlign = 'center'
+      ctx.fillText('Journey Analysis Export', canvas.width / 2, canvas.height / 2)
+      ctx.font = '16px Arial'
+      ctx.fillText(`Format: ${format.toUpperCase()}`, canvas.width / 2, canvas.height / 2 + 40)
+      ctx.fillText('Real implementation would capture journey visualization', canvas.width / 2, canvas.height / 2 + 70)
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const url = URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `journey-analysis.${format}`
+          document.body.appendChild(a)
+          a.click()
+          document.body.removeChild(a)
+          URL.revokeObjectURL(url)
+        }
+      }, `image/${format}`)
+    }
+    
+    setShowExportJourney(false)
+  }
+
   return (
     <ComponentContainerCard
       id="comprehensive-survey-flow"
@@ -848,24 +990,32 @@ const ComprehensiveSurveyFlow = () => {
                 <label className="form-label fw-medium">문항</label>
                 <div className="border rounded p-3" style={{ maxHeight: '300px', overflowY: 'auto' }}>
                   {currentQuestions.map((question) => (
-                    <div key={question.id} className="form-check mb-2">
-                      <input 
-                        className="form-check-input" 
-                        type="checkbox" 
-                        id={question.id}
-                        checked={question.selected}
-                        onChange={(e) => {
-                          const questionId = question.id
-                          if (e.target.checked) {
-                            setSelectedQuestions([...selectedQuestions, questionId])
-                          } else {
-                            setSelectedQuestions(selectedQuestions.filter(id => id !== questionId))
-                          }
-                        }}
-                      />
-                      <label className="form-check-label" htmlFor={question.id}>
-                        {question.text}
-                      </label>
+                    <div key={question.id} className="form-check mb-3 p-2 border rounded">
+                      <div className="d-flex align-items-start">
+                        <input 
+                          className="form-check-input me-3 mt-1" 
+                          type="checkbox" 
+                          id={question.id}
+                          checked={question.selected}
+                          onChange={(e) => {
+                            const questionId = question.id
+                            if (e.target.checked) {
+                              setSelectedQuestions([...selectedQuestions, questionId])
+                            } else {
+                              setSelectedQuestions(selectedQuestions.filter(id => id !== questionId))
+                            }
+                          }}
+                        />
+                        <div className="flex-grow-1">
+                          <label className="form-check-label fw-medium" htmlFor={question.id}>
+                            {question.text}
+                          </label>
+                          <div className="small text-muted mt-1">
+                            <span className="badge bg-light text-dark me-2">{question.responseCount} responses</span>
+                            <span className="badge bg-light text-dark">{question.optionsCount} options</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1001,16 +1151,18 @@ const ComprehensiveSurveyFlow = () => {
         </div>
       </div>
 
-      <SankeyChart 
-        data={reorderedData} 
-        width={1300} 
-        height={900} 
-        selectedRespondent={selectedRespondent}
-        onRespondentClick={setSelectedRespondent}
-        onColumnReorder={setColumnOrder}
-        columnOrder={columnOrder}
-        onPositionSelectorOpen={openPositionSelector}
-      />
+      <div ref={sankeyRef}>
+        <SankeyChart 
+          data={reorderedData} 
+          width={1300} 
+          height={900} 
+          selectedRespondent={selectedRespondent}
+          onRespondentClick={setSelectedRespondent}
+          onColumnReorder={setColumnOrder}
+          columnOrder={columnOrder}
+          onPositionSelectorOpen={openPositionSelector}
+        />
+      </div>
       
       {/* Color Legend for Respondents */}
       <div className="mt-4 d-flex justify-content-center">
@@ -1319,21 +1471,39 @@ const ComprehensiveSurveyFlow = () => {
                     <h6>Export Format</h6>
                     <div className="list-group">
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="exportFormat" defaultChecked />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="exportFormat" 
+                          checked={selectedExportFormat === 'png'}
+                          onChange={() => setSelectedExportFormat('png')}
+                        />
                         <div>
                           <div className="fw-bold">PNG</div>
                           <small className="text-muted">High quality image</small>
                         </div>
                       </label>
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="exportFormat" />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="exportFormat" 
+                          checked={selectedExportFormat === 'pdf'}
+                          onChange={() => setSelectedExportFormat('pdf')}
+                        />
                         <div>
                           <div className="fw-bold">PDF</div>
                           <small className="text-muted">High quality document</small>
                         </div>
                       </label>
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="exportFormat" />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="exportFormat" 
+                          checked={selectedExportFormat === 'jpg'}
+                          onChange={() => setSelectedExportFormat('jpg')}
+                        />
                         <div>
                           <div className="fw-bold">JPG</div>
                           <small className="text-muted">High quality image with broader dimensions</small>
@@ -1343,13 +1513,8 @@ const ComprehensiveSurveyFlow = () => {
                   </div>
                   <div className="col-md-8">
                     <h6>Preview</h6>
-                    <div className="border rounded p-3 bg-light" style={{ height: '300px' }}>
-                      <div className="d-flex align-items-center justify-content-center h-100">
-                        <div className="text-center">
-                          <i className="bi bi-diagram-3 display-4 text-muted"></i>
-                          <p className="text-muted mt-2">Sankey Diagram Preview</p>
-                        </div>
-                      </div>
+                    <div className="border rounded p-3" style={{ height: '300px' }}>
+                      {generatePreview('diagram')}
                     </div>
                   </div>
                 </div>
@@ -1365,12 +1530,9 @@ const ComprehensiveSurveyFlow = () => {
                 <button 
                   type="button" 
                   className="btn btn-primary"
-                  onClick={() => {
-                    // Export logic here
-                    setShowExportDiagram(false)
-                  }}
+                  onClick={() => exportDiagram(selectedExportFormat)}
                 >
-                  Download
+                  Download {selectedExportFormat.toUpperCase()}
                 </button>
               </div>
             </div>
@@ -1408,21 +1570,39 @@ const ComprehensiveSurveyFlow = () => {
                     <h6>Export Format</h6>
                     <div className="list-group">
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" defaultChecked />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="journeyExportFormat" 
+                          checked={selectedJourneyFormat === 'png'}
+                          onChange={() => setSelectedJourneyFormat('png')}
+                        />
                         <div>
                           <div className="fw-bold">PNG</div>
                           <small className="text-muted">High quality image</small>
                         </div>
                       </label>
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="journeyExportFormat" 
+                          checked={selectedJourneyFormat === 'pdf'}
+                          onChange={() => setSelectedJourneyFormat('pdf')}
+                        />
                         <div>
                           <div className="fw-bold">PDF</div>
                           <small className="text-muted">High quality document</small>
                         </div>
                       </label>
                       <label className="list-group-item">
-                        <input className="form-check-input me-1" type="radio" name="journeyExportFormat" />
+                        <input 
+                          className="form-check-input me-1" 
+                          type="radio" 
+                          name="journeyExportFormat" 
+                          checked={selectedJourneyFormat === 'jpg'}
+                          onChange={() => setSelectedJourneyFormat('jpg')}
+                        />
                         <div>
                           <div className="fw-bold">JPG</div>
                           <small className="text-muted">High quality image with broader dimensions</small>
@@ -1432,13 +1612,8 @@ const ComprehensiveSurveyFlow = () => {
                   </div>
                   <div className="col-md-8">
                     <h6>Preview</h6>
-                    <div className="border rounded p-3 bg-light" style={{ height: '300px' }}>
-                      <div className="d-flex align-items-center justify-content-center h-100">
-                        <div className="text-center">
-                          <i className="bi bi-arrow-right-circle display-4 text-muted"></i>
-                          <p className="text-muted mt-2">Journey Analysis Preview</p>
-                        </div>
-                      </div>
+                    <div className="border rounded p-3" style={{ height: '300px' }}>
+                      {generatePreview('journey')}
                     </div>
                   </div>
                 </div>
@@ -1454,12 +1629,9 @@ const ComprehensiveSurveyFlow = () => {
                 <button 
                   type="button" 
                   className="btn btn-primary"
-                  onClick={() => {
-                    // Export logic here
-                    setShowExportJourney(false)
-                  }}
+                  onClick={() => exportJourney(selectedJourneyFormat)}
                 >
-                  Download
+                  Download {selectedJourneyFormat.toUpperCase()}
                 </button>
               </div>
             </div>

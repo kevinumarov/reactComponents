@@ -754,11 +754,87 @@ const ComprehensiveSurveyFlow = () => {
     }
   }
 
+  // Apply filters to data
+  const applyFilters = (data: any) => {
+    let filteredData = { ...data }
+    
+    // Apply question order filter
+    if (questionOrderFilter !== 'first_question') {
+      // Reorder columns based on filter selection
+      const newColumnOrder = [...columnOrder]
+      switch (questionOrderFilter) {
+        case 'most_answered':
+          // Move cafe (most answered) to first position
+          const cafeCol = newColumnOrder.find(col => col.category === 'cafe')
+          if (cafeCol) {
+            const otherCols = newColumnOrder.filter(col => col.category !== 'cafe')
+            setColumnOrder([cafeCol, ...otherCols])
+          }
+          break
+        case 'satisfaction_driver':
+          // Move dessert (satisfaction) to first position
+          const dessertCol = newColumnOrder.find(col => col.category === 'dessert')
+          if (dessertCol) {
+            const otherCols = newColumnOrder.filter(col => col.category !== 'dessert')
+            setColumnOrder([dessertCol, ...otherCols])
+          }
+          break
+      }
+    }
+    
+    // Apply conditions filter
+    if (conditionsFilter !== 'response_based') {
+      const filteredJourneys: any = {}
+      
+      switch (conditionsFilter) {
+        case 'advanced_analytics':
+          // Filter for high satisfaction (7점) only
+          Object.entries(data.journeys).forEach(([respondent, journey]: [string, any]) => {
+            if (journey[4] === 'Dessert 7점') {
+              filteredJourneys[respondent] = journey
+            }
+          })
+          break
+        case 'behavioral_patterns':
+          // Filter for Ink Coffee visitors only
+          Object.entries(data.journeys).forEach(([respondent, journey]: [string, any]) => {
+            if (journey[1] === 'Ink Coffee') {
+              filteredJourneys[respondent] = journey
+            }
+          })
+          break
+        case 'saved_segments':
+          // Filter for Starbucks visitors only
+          Object.entries(data.journeys).forEach(([respondent, journey]: [string, any]) => {
+            if (journey[1] === 'Starbucks') {
+              filteredJourneys[respondent] = journey
+            }
+          })
+          break
+        default:
+          Object.assign(filteredJourneys, data.journeys)
+      }
+      
+      filteredData = { ...filteredData, journeys: filteredJourneys }
+    }
+    
+    // Apply selected questions filter
+    if (selectedQuestions.length > 0) {
+      // Filter based on selected questions (this would need more complex logic)
+      // For now, just return filtered data
+    }
+    
+    return filteredData
+  }
+  
+  // Get filtered data
+  const filteredData = applyFilters(comprehensiveSurveyFlow)
+  
   // Get reordered data
-  const reorderedData = reorderSankeyData(comprehensiveSurveyFlow, columnOrder)
+  const reorderedData = reorderSankeyData(filteredData, columnOrder)
   
   // Calculate current journey paths
-  const journeyAnalysis = calculateJourneyPaths(comprehensiveSurveyFlow, columnOrder)
+  const journeyAnalysis = calculateJourneyPaths(filteredData, columnOrder)
 
   // Function to generate export preview
   const generatePreview = (type: 'diagram' | 'journey') => {
@@ -1056,11 +1132,12 @@ const ComprehensiveSurveyFlow = () => {
                 <button 
                   className="btn btn-primary"
                   onClick={() => {
-                    // Apply filter logic here
+                    // Force re-render by updating a state that triggers recalculation
                     setShowFilters(false)
+                    // The applyFilters function will automatically be called due to state changes
                   }}
                 >
-                  Apply 5
+                  Apply {allQuestions.filter(q => q.selected).length}
                 </button>
               </div>
             </div>
@@ -1291,9 +1368,23 @@ const ComprehensiveSurveyFlow = () => {
                   <p className="text-muted mb-2">
                     Starting with <strong>{columnOrder[0]?.title || 'First Question'}</strong>
                   </p>
-                  <p className="text-muted mb-0">
+                  <p className="text-muted mb-1">
                     Showing <strong>top {journeyAnalysis.paths.length} paths</strong> taken <strong>{journeyAnalysis.totalJourneys} times</strong> sorted by frequency
                   </p>
+                  {(questionOrderFilter !== 'first_question' || conditionsFilter !== 'response_based') && (
+                    <div className="mt-2 p-2 bg-info bg-opacity-10 rounded">
+                      <small className="text-info">
+                        <i className="bi bi-funnel me-1"></i>
+                        <strong>Filters Applied:</strong>
+                        {questionOrderFilter !== 'first_question' && (
+                          <span className="ms-1">Question Order: {questionOrderFilter.replace('_', ' ')}</span>
+                        )}
+                        {conditionsFilter !== 'response_based' && (
+                          <span className="ms-1">| Condition: {conditionsFilter.replace('_', ' ')}</span>
+                        )}
+                      </small>
+                    </div>
+                  )}
                 </div>
                 <div className="d-flex justify-content-end">
                   <button 

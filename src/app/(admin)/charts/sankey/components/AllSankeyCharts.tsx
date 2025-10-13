@@ -703,14 +703,16 @@ const ComprehensiveSurveyFlow = () => {
     const journeyPaths: { [key: string]: { count: number, respondents: string[] } } = {}
     const totalJourneys = Object.keys(journeyData).length
     
-    // Build journey paths based on current column order
+    // Build journey paths based on current column order (excluding respondent for grouping)
     Object.entries(journeyData).forEach(([respondent, journey]: [string, any]) => {
       const pathSteps: string[] = []
       
       currentColumnOrder.forEach((col) => {
         let value = ''
         switch(col.category) {
-          case 'respondent': value = journey[0]; break
+          case 'respondent': 
+            // Skip respondent for path grouping, but we'll track them separately
+            return
           case 'cafe': value = journey[1]; break
           case 'location': value = journey[2]; break
           case 'coffee': value = journey[3]; break
@@ -720,6 +722,11 @@ const ComprehensiveSurveyFlow = () => {
           pathSteps.push(value)
         }
       })
+      
+      // If no non-respondent steps, create a respondent-only path
+      if (pathSteps.length === 0) {
+        pathSteps.push(journey[0]) // Use respondent name
+      }
       
       const pathKey = pathSteps.join(' → ')
       if (!journeyPaths[pathKey]) {
